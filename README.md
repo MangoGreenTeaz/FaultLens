@@ -2,6 +2,8 @@
 
 > See beyond the error.
 
+**🌐 Language:** [English](README.md) | [简体中文](README.zh-CN.md)
+
 FaultLens is a **local-first, offline-first** log incident diagnosis CLI. It
 identifies error patterns, detects anomalous time points, analyzes the
 relationships between errors, and infers the most likely root cause from
@@ -50,7 +52,45 @@ cat app.log | faultlens
 
 ## Example
 
-> TODO: add a full annotated example report.
+> Target output (V1 in development):
+
+```text
+FaultLens
+────────────────────────────────────────────
+
+Log Summary
+
+Events:       182,391
+Errors:       4,381
+Warnings:     8,212
+Time Range:   14:00 - 15:00
+Format:       Java
+
+────────────────────────────────────────────
+
+Anomalies
+
+14:32
+Error rate increased 41.2x
+
+────────────────────────────────────────────
+
+Diagnosis
+
+ROOT CAUSE
+MySQL became unavailable
+
+Confidence
+0.91
+
+Evidence
+14:32:15  ERROR_PATTERN  MySQL connection refused
+14:32:19  ANOMALY        HTTP 500 increased 42x
+
+Recommendations
+1. Check MySQL availability
+2. Check database connection limit
+```
 
 ## How It Works
 
@@ -59,7 +99,8 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
 ```
 
 Every diagnosis is backed by evidence, a rule, and a confidence score that can
-be traced back to the log lines that produced it.
+be traced back to the log lines that produced it. If the evidence is not
+strong enough, FaultLens reports `Insufficient evidence` instead of guessing.
 
 ## Architecture
 
@@ -76,9 +117,12 @@ internal/diagnosis/ root cause engine + rules
 internal/output/    terminal / JSON / Markdown renderers
 ```
 
+Core analysis packages are independent of the CLI so they can be reused by
+future GitHub Actions or API integrations.
+
 ## CLI Reference
 
-> TODO: document all commands and flags once implemented.
+> Commands below are the V1 target. Only `version` is implemented so far.
 
 - `faultlens <file>` — full analysis report (default)
 - `faultlens errors <file>` — error clustering
