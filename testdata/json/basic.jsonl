@@ -1,0 +1,4 @@
+{"timestamp":"2026-08-31T14:32:01Z","level":"ERROR","message":"database connection failed","service":"api"}
+{"ts":"2026-08-31T14:32:02Z","severity":"warn","msg":"cache miss","request_id":"abc-123"}
+{"level":"INFO","message":"request handled","user_id":42}
+{"time":"2026-08-31T14:32:03Z","level":"DEBUG","message":"retry attempt","attempt":2}

@@ -1,0 +1,5 @@
+127.0.0.1 - - [31/Aug/2026:14:32:01 +0800] "GET /api HTTP/1.1" 200 123
+127.0.0.1 - - [31/Aug/2026:14:32:02 +0800] "GET /users HTTP/1.1" 500 12
+10.0.0.5 - admin [31/Aug/2026:14:32:03 +0000] "POST /orders HTTP/1.1" 503 0
+2026/08/31 14:32:04 [error] 1234#0: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /api HTTP/1.1", upstream: "http://10.0.0.9:8080"
+2026/08/31 14:32:05 [warn] 1234#0: *2 upstream server temporarily disabled while connecting to upstream, client: 127.0.0.1

@@ -1,0 +1,11 @@
+2026-08-31T14:32:01.123+08:00 ERROR 12345 --- [http-nio-8080-exec-1] com.example.UserService : Database query failed
+java.sql.SQLException: Connection refused
+    at com.example.UserService.query(UserService.java:182)
+    at com.example.UserController.get(UserController.java:71)
+    at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    ... 3 more
+Caused by: java.net.ConnectException: Connection refused
+    at java.base/sun.nio.ch.Net.connect0(Native Method)
+    at java.base/sun.nio.ch.Net.connect(Net.java:597)
+2026-08-31T14:32:02.456+08:00 INFO  12345 --- [http-nio-8080-exec-2] com.example.Main : request handled
+2026-08-31T14:32:03.789+08:00 WARN  12345 --- [http-nio-8080-exec-3] com.example.Main : slow operation detected

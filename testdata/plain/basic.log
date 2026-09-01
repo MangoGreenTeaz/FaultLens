@@ -1,0 +1,6 @@
+service started
+connection reset by peer
+2026-08-31 14:00:00 healthcheck passed
+user 42 login failed
+worker pool exhausted, retrying
+2026-08-31 14:00:05 task completed

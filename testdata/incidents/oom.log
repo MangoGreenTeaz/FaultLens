@@ -1,0 +1,7 @@
+﻿2026-08-31 15:00:00 WARN memory usage increasing steadily
+2026-08-31 15:00:01 WARN memory usage at 80%
+2026-08-31 15:00:02 ERROR java.lang.OutOfMemoryError: Java heap space
+    at com.example.service.Worker.process(Worker.java:42)
+    at com.example.Main.main(Main.java:10)
+2026-08-31 15:00:03 ERROR application crashed
+2026-08-31 15:00:04 FATAL process exited with code 1
