@@ -9,26 +9,30 @@ identifies error patterns, detects anomalous time points, analyzes the
 relationships between errors, and infers the most likely root cause from
 transparent, explainable rules — no network, no database, no AI API required.
 
-> **Status: WIP** — V1 is under active development. Command behavior and output
-> formats below are the target design and may change until the V1 release.
-
 ## Features
 
 - Detect error patterns in plain text, JSON, Java/Spring Boot, and Nginx logs
 - Normalize dynamic values (IPs, ports, UUIDs, numbers, timestamps, URLs…)
-- Cluster errors by stable fingerprints
+- Cluster errors by stable SHA-256 fingerprints
 - Build per-minute timelines and detect anomalies with explainable baselines
 - Diagnose the most likely root cause with evidence and confidence
+- Report `Insufficient evidence` instead of guessing when signals are weak
 - Output reports as terminal text, JSON, or Markdown
-
-*Full feature list is being finalized in V1.*
 
 ## Installation
 
-> TODO: documented once a stable release is available.
+Requires [Go 1.22+](https://go.dev/dl/).
 
 ```bash
 go install github.com/faultlens/faultlens/cmd/faultlens@latest
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/faultlens/faultlens.git
+cd faultlens
+go build ./cmd/faultlens
 ```
 
 ## Quick Start
@@ -41,55 +45,47 @@ Or pipe logs from stdin:
 
 ```bash
 cat app.log | faultlens
+docker logs some-container | faultlens incident
 ```
 
 ## Supported Logs
 
-- Plain text (timestamp + level + message)
-- JSON (JSONL)
-- Java / Spring Boot (including stack traces)
+- Plain text (`timestamp + level + message`)
+- JSON (JSONL), with common field aliases (`timestamp`/`time`/`ts`, `level`/`severity`, …)
+- Java / Spring Boot, including multi-line stack traces aggregated into a single event
 - Nginx access and error logs
+
+The format is auto-detected from content; use `--format` to force it.
 
 ## Example
 
-> Target output (V1 in development):
+```bash
+faultlens incident testdata/incidents/mysql-outage.log
+```
 
 ```text
-FaultLens
-────────────────────────────────────────────
+Incident detected
 
-Log Summary
+Root Cause:
+Database unavailable
 
-Events:       182,391
-Errors:       4,381
-Warnings:     8,212
-Time Range:   14:00 - 15:00
-Format:       Java
+Confidence:
+90%
 
-────────────────────────────────────────────
+Severity:
+critical
 
-Anomalies
+Evidence:
+14:32:02  database-related errors detected
+14:32:01  connection failures detected
+14:32:05  HTTP 5xx errors observed downstream
+14:32:05  database errors preceded HTTP 5xx spike
 
-14:32
-Error rate increased 41.2x
-
-────────────────────────────────────────────
-
-Diagnosis
-
-ROOT CAUSE
-MySQL became unavailable
-
-Confidence
-0.91
-
-Evidence
-14:32:15  ERROR_PATTERN  MySQL connection refused
-14:32:19  ANOMALY        HTTP 500 increased 42x
-
-Recommendations
+Recommended:
 1. Check MySQL availability
 2. Check database connection limit
+3. Check recent database restart
+4. Check network connectivity between application and database
 ```
 
 ## How It Works
@@ -99,22 +95,25 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
 ```
 
 Every diagnosis is backed by evidence, a rule, and a confidence score that can
-be traced back to the log lines that produced it. If the evidence is not
-strong enough, FaultLens reports `Insufficient evidence` instead of guessing.
+be traced back to the log lines that produced it. Confidence is assembled from
+explainable building blocks (strong evidence, supporting evidence, temporal
+correlation, downstream impact, contradictions) and clamped to `[0, 1]`.
 
 ## Architecture
 
 ```
-cmd/faultlens/   CLI entry point (Cobra)
-internal/model/  shared data model
-internal/input/  file & stdin input
-internal/parser/ log format parsers
-internal/normalize/ error normalization
-internal/grouping/  error clustering
-internal/timeline/  time bucket analysis
-internal/anomaly/   anomaly detection
-internal/diagnosis/ root cause engine + rules
-internal/output/    terminal / JSON / Markdown renderers
+cmd/faultlens/       CLI entry point (Cobra)
+internal/engine/     analysis pipeline (input → … → diagnosis)
+internal/model/      shared data model
+internal/input/      file & stdin streaming input
+internal/parser/     plain / json / java / nginx / auto parsers
+internal/normalize/  error normalization
+internal/grouping/   error clustering + fingerprints
+internal/timeline/   per-minute time buckets
+internal/anomaly/    z-score anomaly detection
+internal/diagnosis/  root-cause engine + 6 rules
+internal/output/     terminal / JSON / Markdown renderers
+testdata/            sample logs and incident fixtures
 ```
 
 Core analysis packages are independent of the CLI so they can be reused by
@@ -122,18 +121,27 @@ future GitHub Actions or API integrations.
 
 ## CLI Reference
 
-> Commands below are the V1 target. Only `version` is implemented so far.
+```bash
+faultlens <file>          # full analysis report (default)
+faultlens errors <file>   # error clustering
+faultlens timeline <file> # per-minute timeline + anomalies
+faultlens incident <file> # root-cause diagnosis
+faultlens version         # print version
+```
 
-- `faultlens <file>` — full analysis report (default)
-- `faultlens errors <file>` — error clustering
-- `faultlens timeline <file>` — timeline analysis
-- `faultlens incident <file>` — incident diagnosis
-- `faultlens version` — print version
+Global flags:
+
+```bash
+--format auto|plain|json|java|nginx   # log format (default: auto)
+--output terminal|json|markdown       # report format (default: terminal)
+--from <RFC3339>                      # only events at/after this time
+--to   <RFC3339>                      # only events at/before this time
+```
 
 ## Output Formats
 
 - `terminal` — human-readable report
-- `json` — stable schema for tooling and CI
+- `json` — stable schema (`summary`, `error_groups`, `timeline`, `anomalies`, `diagnosis`) for tooling and CI
 - `markdown` — for issues, postmortems, and PR comments
 
 ## Development
@@ -144,11 +152,16 @@ go test ./...
 go vet ./...
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
-
 ## Testing
 
-> TODO: describe the test layout and fixtures once populated.
+```bash
+go test ./...          # unit tests for every core package
+go test ./internal/engine/ -run TestIncidentFixtures -v   # end-to-end runs
+```
+
+Every core package has table-driven unit tests, and `testdata/incidents/*`
+drive end-to-end pipeline tests (e.g. `mysql-outage.log` must diagnose
+`Database unavailable`, never the HTTP 5xx symptom).
 
 ## Contributing
 
@@ -156,4 +169,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[Apache-2.0](LICENSE)
+[MIT](LICENSE)
