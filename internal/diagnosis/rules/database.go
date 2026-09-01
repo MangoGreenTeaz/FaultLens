@@ -44,7 +44,7 @@ func (*DatabaseRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis 
 	var evidence []model.Evidence
 
 	// Strong evidence: database-specific error patterns.
-	if strongCount >= 10 {
+	if strongCount >= strongEvidenceThreshold {
 		conf += diagnosis.ScoreStrong
 	} else {
 		conf += diagnosis.ScoreSupporting

@@ -133,3 +133,23 @@ func TestReaderBlankLinesAreKept(t *testing.T) {
 		t.Errorf("blank line = %q, want empty string", lines[1])
 	}
 }
+
+func TestReaderSkipsUTF8BOM(t *testing.T) {
+	// Files written by Windows tools often start with a UTF-8 BOM; the first
+	// line must be read without it.
+	bom := "\xEF\xBB\xBF"
+	r := NewReader(strings.NewReader(bom+"first line\nsecond line\n"), "test")
+	lines, err := collect(r)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(lines) != 2 {
+		t.Fatalf("got %d lines, want 2", len(lines))
+	}
+	if lines[0] != "first line" {
+		t.Errorf("first line = %q, want %q (BOM must be stripped)", lines[0], "first line")
+	}
+	if lines[1] != "second line" {
+		t.Errorf("second line = %q, want %q", lines[1], "second line")
+	}
+}

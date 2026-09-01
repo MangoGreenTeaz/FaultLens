@@ -1,4 +1,4 @@
-﻿2026-08-31 16:00:01 ERROR panic: runtime error: invalid memory address or nil pointer dereference
+2026-08-31 16:00:01 ERROR panic: runtime error: invalid memory address or nil pointer dereference
     at main.main()
     at runtime.main()
 2026-08-31 16:00:01 ERROR panic: runtime error: invalid memory address or nil pointer dereference

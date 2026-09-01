@@ -38,7 +38,7 @@ func (*RedisRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
 	conf := 0.0
 	var evidence []model.Evidence
 
-	if strongCount >= 10 {
+	if strongCount >= strongEvidenceThreshold {
 		conf += diagnosis.ScoreStrong
 	} else {
 		conf += diagnosis.ScoreSupporting

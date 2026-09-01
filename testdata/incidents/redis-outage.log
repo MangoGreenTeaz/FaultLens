@@ -1,4 +1,4 @@
-﻿2026-08-31 14:31:00 INFO cache hit
+2026-08-31 14:31:00 INFO cache hit
 2026-08-31 14:31:01 INFO cache hit
 2026-08-31 14:31:02 INFO cache hit
 2026-08-31 14:32:01 ERROR redis timeout after 5000ms

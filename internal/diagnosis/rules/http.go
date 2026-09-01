@@ -72,11 +72,11 @@ func (*HTTPRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
 // databaseDown reports whether strong database evidence exists.
 func databaseDown(ctx *diagnosis.DiagnosisContext) bool {
 	count, _, _ := diagnosis.CountKeywordGroups(ctx.ErrorGroups, databaseStrongKeywords)
-	return count >= 10
+	return count >= strongEvidenceThreshold
 }
 
 // redisDown reports whether strong redis evidence exists.
 func redisDown(ctx *diagnosis.DiagnosisContext) bool {
 	count, _, _ := diagnosis.CountKeywordGroups(ctx.ErrorGroups, redisStrongKeywords)
-	return count >= 10
+	return count >= strongEvidenceThreshold
 }

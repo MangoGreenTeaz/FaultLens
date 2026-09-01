@@ -39,7 +39,7 @@ func (*CrashRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
 		diagnosis.NewErrorPatternEvidence(first, "crash indicators detected", diagnosis.ScoreSupporting),
 	}
 
-	if count >= 5 {
+	if count >= crashVolumeThreshold {
 		conf += diagnosis.ScoreSupporting
 		evidence = append(evidence,
 			diagnosis.NewErrorPatternEvidence(first, "multiple crash indicators", diagnosis.ScoreSupporting))

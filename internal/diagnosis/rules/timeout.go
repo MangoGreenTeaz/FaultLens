@@ -39,7 +39,7 @@ func (*TimeoutRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
 	}
 
 	// Repeated timeouts across many events strengthen the signal.
-	if count >= 20 {
+	if count >= largeVolumeThreshold {
 		conf += diagnosis.ScoreSupporting
 		evidence = append(evidence,
 			diagnosis.NewErrorPatternEvidence(first, "large volume of timeout errors", diagnosis.ScoreSupporting))

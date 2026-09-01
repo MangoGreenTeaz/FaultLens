@@ -62,18 +62,18 @@ cat app.log | faultlens
 
 **Requirements:** [Go 1.22+](https://go.dev/dl/)
 
-Install the latest version:
-
-```bash
-go install github.com/faultlens/faultlens/cmd/faultlens@latest
-```
-
-Or build from source:
+Build from source (recommended until the module is published):
 
 ```bash
 git clone https://github.com/MangoGreenTeaz/FaultLens.git
 cd FaultLens
 go build -o faultlens ./cmd/faultlens
+```
+
+Once the module is published under the `faultlens` org, install directly:
+
+```bash
+go install github.com/faultlens/faultlens/cmd/faultlens@latest
 ```
 
 Verify the install:

@@ -64,11 +64,23 @@ func (r *Reader) Close() error {
 	return nil
 }
 
-// newScanner builds a scanner that tolerates very long lines.
+// newScanner builds a scanner that tolerates very long lines and skips a
+// UTF-8 BOM at the very start of the stream (common in files produced by
+// Windows tools).
 func newScanner(r io.Reader) *bufio.Scanner {
 	s := bufio.NewScanner(r)
 	s.Buffer(make([]byte, defaultBufferSize), maxLineSize)
-	s.Split(splitLines)
+	first := true
+	s.Split(func(data []byte, atEOF bool) (int, []byte, error) {
+		if first {
+			first = false
+			if len(data) >= 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF {
+				adv, tok, err := splitLines(data[3:], atEOF)
+				return adv + 3, tok, err
+			}
+		}
+		return splitLines(data, atEOF)
+	})
 	return s
 }
 
