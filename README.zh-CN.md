@@ -35,23 +35,23 @@ cat app.log | faultlens
 - [贡献](#贡献)
 - [许可](#许可)
 
-## 特性
+## ✨ 特性
 
-- **统一解析** — 纯文本、JSON(支持字段别名)、Java/Spring Boot(多行堆栈
+- 🔍 **统一解析** — 纯文本、JSON(支持字段别名)、Java/Spring Boot(多行堆栈
   跟踪合并为单个事件)、Nginx access/error 日志;格式按内容自动检测。
-- **动态值归一化** — IP、端口、UUID、数字、时间戳、URL、路径、Hex ID 变为
+- 🧹 **动态值归一化** — IP、端口、UUID、数字、时间戳、URL、路径、Hex ID 变为
   稳定占位符,同时保留 HTTP 状态码等有诊断意义的数值。
-- **错误聚类** — 语义相同的错误按稳定 SHA-256 指纹聚为一组,按出现次数
+- 🗂️ **错误聚类** — 语义相同的错误按稳定 SHA-256 指纹聚为一组,按出现次数
   排序。
-- **异常检测** — 按分钟分桶,与可解释的基线(均值 + 标准差、z-score)对比。
+- 📈 **异常检测** — 按分钟分桶,与可解释的基线(均值 + 标准差、z-score)对比。
   无机器学习,完全透明。
-- **可解释诊断** — 每个 Root Cause 都附带证据、规则和可追溯到日志行的置信
+- 🧠 **可解释诊断** — 每个 Root Cause 都附带证据、规则和可追溯到日志行的置信
   度。证据不足时输出 `Insufficient evidence`,而不是强行猜测。
-- **多种报告格式** — Terminal 文本、稳定 JSON(供 CI 与工具消费)、Markdown
+- 📦 **多种报告格式** — Terminal 文本、稳定 JSON(供 CI 与工具消费)、Markdown
   (适合 Issue、Postmortem、PR 评论)。
-- **本地优先 & 离线** — 一切都在本机运行,无遥测、无外部调用。
+- 🔒 **本地优先 & 离线** — 一切都在本机运行,无遥测、无外部调用。
 
-## 安装
+## 📦 安装
 
 **环境要求:** [Go 1.22+](https://go.dev/dl/)
 
@@ -75,7 +75,7 @@ go install github.com/faultlens/faultlens/cmd/faultlens@latest
 faultlens version
 ```
 
-## 快速开始
+## 🚀 快速开始
 
 分析日志文件:
 
@@ -104,7 +104,7 @@ docker logs some-container | faultlens incident
 faultlens incident app.log --from 2026-08-31T14:00:00Z --to 2026-08-31T15:00:00Z
 ```
 
-## 支持的日志
+## 📊 支持的日志
 
 | 格式 | 示例 | 说明 |
 | --- | --- | --- |
@@ -115,7 +115,7 @@ faultlens incident app.log --from 2026-08-31T14:00:00Z --to 2026-08-31T15:00:00Z
 
 使用 `--format auto|plain|json|java|nginx` 可覆盖内容检测。
 
-## 示例
+## 📝 示例
 
 ```bash
 faultlens incident testdata/incidents/mysql-outage.log
@@ -146,7 +146,7 @@ Recommended:
 4. Check network connectivity between application and database
 ```
 
-## 工作原理
+## ⚙️ 工作原理
 
 ```
 input → parser → normalize → grouping → timeline → anomaly → diagnosis → report
@@ -161,7 +161,7 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
    不会压过其上游根因。
 6. **报告** 以你选择的格式输出。
 
-## 架构
+## 🏗️ 架构
 
 ```
 cmd/faultlens/       CLI 入口(Cobra)
@@ -180,7 +180,7 @@ testdata/            样例日志与事故 fixtures
 
 核心分析包与 CLI 解耦,管线未来可复用于 GitHub Actions 或 API 集成。
 
-## CLI 参考
+## 💻 CLI 参考
 
 ```bash
 faultlens <file>          # 完整分析报告(默认)
@@ -197,14 +197,14 @@ faultlens version         # 打印版本号
 | `--from` | RFC 3339 时间 | — | 只分析该时间点之后的事件 |
 | `--to` | RFC 3339 时间 | — | 只分析该时间点之前的事件 |
 
-## 输出格式
+## 🖨️ 输出格式
 
 - **terminal** — 人类可读的报告(默认)。
 - **json** — 供工具与 CI 消费的稳定 schema:
   `{ "summary", "error_groups", "timeline", "anomalies", "diagnosis" }`。
 - **markdown** — 表格与标题,适合 GitHub Issue、Postmortem、PR 评论。
 
-## 测试
+## 🧪 测试
 
 ```bash
 go test ./...                                    # 每个包的单元测试
@@ -216,12 +216,12 @@ go vet ./...
 完整管线集成测试——例如 `mysql-outage.log` 必须诊断为 `Database
 unavailable`,而不是 HTTP 5xx 症状。
 
-## 贡献
+## 🤝 贡献
 
 欢迎贡献!请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。它涵盖如何新增
 parser、如何新增 diagnosis rule、如何提交 PR。
 
-## 许可
+## 📄 许可
 
 FaultLens 以 [MIT 许可证](LICENSE) 发布。
 

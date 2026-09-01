@@ -37,28 +37,28 @@ cat app.log | faultlens
 - [Contributing](#contributing)
 - [License](#license)
 
-## Features
+## ✨ Features
 
-- **Unified parsing** — plain text, JSON (with field aliases), Java/Spring
+- 🔍 **Unified parsing** — plain text, JSON (with field aliases), Java/Spring
   Boot (multi-line stack traces merged into one event), and Nginx access /
   error logs. Format is auto-detected from content.
-- **Dynamic value normalization** — IPs, ports, UUIDs, numbers, timestamps,
+- 🧹 **Dynamic value normalization** — IPs, ports, UUIDs, numbers, timestamps,
   URLs, paths and hex IDs become stable placeholders, while diagnostic values
   such as HTTP status codes are preserved.
-- **Error clustering** — semantically identical errors merge into groups keyed
-  by stable SHA-256 fingerprints, ranked by occurrence count.
-- **Anomaly detection** — per-minute time buckets compared against an
+- 🗂️ **Error clustering** — semantically identical errors merge into groups
+  keyed by stable SHA-256 fingerprints, ranked by occurrence count.
+- 📈 **Anomaly detection** — per-minute time buckets compared against an
   explainable baseline (mean + standard deviation, z-score). No machine
   learning, fully transparent.
-- **Explainable diagnosis** — every root cause ships with evidence, a rule,
+- 🧠 **Explainable diagnosis** — every root cause ships with evidence, a rule,
   and a confidence score traceable back to the log lines. When evidence is
   weak, FaultLens reports `Insufficient evidence` instead of guessing.
-- **Multiple report formats** — terminal text, stable JSON (for CI and
+- 📦 **Multiple report formats** — terminal text, stable JSON (for CI and
   tooling), and Markdown (for issues, postmortems and PR comments).
-- **Local-first & offline** — everything runs on your machine. No telemetry,
+- 🔒 **Local-first & offline** — everything runs on your machine. No telemetry,
   no external calls.
 
-## Installation
+## 📦 Installation
 
 **Requirements:** [Go 1.22+](https://go.dev/dl/)
 
@@ -82,7 +82,7 @@ Verify the install:
 faultlens version
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 Analyze a log file:
 
@@ -111,7 +111,7 @@ Filter by time window:
 faultlens incident app.log --from 2026-08-31T14:00:00Z --to 2026-08-31T15:00:00Z
 ```
 
-## Supported Logs
+## 📊 Supported Logs
 
 | Format | Example | Notes |
 | --- | --- | --- |
@@ -122,7 +122,7 @@ faultlens incident app.log --from 2026-08-31T14:00:00Z --to 2026-08-31T15:00:00Z
 
 Use `--format auto|plain|json|java|nginx` to override content-based detection.
 
-## Example
+## 📝 Example
 
 ```bash
 faultlens incident testdata/incidents/mysql-outage.log
@@ -153,7 +153,7 @@ Recommended:
 4. Check network connectivity between application and database
 ```
 
-## How It Works
+## ⚙️ How It Works
 
 ```
 input → parser → normalize → grouping → timeline → anomaly → diagnosis → report
@@ -169,7 +169,7 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
    confidence; symptoms (HTTP 5xx) never beat their upstream cause.
 6. **Report** in the format you choose.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 cmd/faultlens/       CLI entry point (Cobra)
@@ -189,7 +189,7 @@ testdata/            sample logs and incident fixtures
 Core analysis packages are independent of the CLI, so the pipeline can be
 reused by future GitHub Actions or API integrations.
 
-## CLI Reference
+## 💻 CLI Reference
 
 ```bash
 faultlens <file>          # full analysis report (default)
@@ -206,7 +206,7 @@ faultlens version         # print version
 | `--from` | RFC 3339 timestamp | — | Only events at/after this time |
 | `--to` | RFC 3339 timestamp | — | Only events at/before this time |
 
-## Output Formats
+## 🖨️ Output Formats
 
 - **terminal** — human-readable report (default).
 - **json** — stable schema for tooling and CI:
@@ -214,7 +214,7 @@ faultlens version         # print version
 - **markdown** — tables and headings, ready for GitHub issues, postmortems and
   PR comments.
 
-## Testing
+## 🧪 Testing
 
 ```bash
 go test ./...                                    # unit tests for every package
@@ -227,13 +227,13 @@ fixtures drive full-pipeline integration tests — for example,
 `mysql-outage.log` must diagnose `Database unavailable`, never the HTTP 5xx
 symptom.
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 first. It covers how to add a parser, add a diagnosis rule, and submit a pull
 request.
 
-## License
+## 📄 License
 
 FaultLens is released under the [MIT License](LICENSE).
 

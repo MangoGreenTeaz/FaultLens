@@ -28,7 +28,7 @@ The following are **not** considered security vulnerabilities:
 - False positives or false negatives in log diagnosis rules (these are
   correctness issues, report them as regular issues)
 - Performance problems on very large log files
-- Features explicitly out of scope for V1 (see `plan.md`)
+- Features explicitly out of scope for the current version (see `plan-v2.md`)
 
 ## Responsible Disclosure
 
