@@ -78,6 +78,10 @@ func (p *JavaParser) Flush() []*model.LogEvent {
 	return []*model.LogEvent{ev}
 }
 
+// Issues implements Parser. Java never fails; unmatched lines become
+// UNKNOWN-level events.
+func (*JavaParser) Issues() int { return 0 }
+
 // Reset implements Parser.
 func (p *JavaParser) Reset() { p.buf = nil }
 

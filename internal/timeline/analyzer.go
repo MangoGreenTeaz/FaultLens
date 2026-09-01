@@ -14,11 +14,11 @@ const DefaultInterval = time.Minute
 
 // Bucket counts log events that fell into one time window.
 type Bucket struct {
-	Start    time.Time
-	Total    int
-	Errors   int
-	Warnings int
-	Fatal    int
+	Start    time.Time `json:"start"`
+	Total    int       `json:"total"`
+	Errors   int       `json:"errors"`
+	Warnings int       `json:"warnings"`
+	Fatal    int       `json:"fatal"`
 }
 
 // Analyzer folds model.LogEvent values into Buckets.

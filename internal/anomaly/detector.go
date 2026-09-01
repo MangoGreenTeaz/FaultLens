@@ -34,12 +34,12 @@ type Config struct {
 
 // Detection describes one anomalous bucket.
 type Detection struct {
-	Bucket       time.Time
-	BaselineMean float64
-	BaselineStd  float64
-	Current      int
-	ZScore       float64
-	Increase     float64
+	Bucket       time.Time `json:"bucket"`
+	BaselineMean float64   `json:"baseline_mean"`
+	BaselineStd  float64   `json:"baseline_std"`
+	Current      int       `json:"current"`
+	ZScore       float64   `json:"z_score"`
+	Increase     float64   `json:"increase"`
 }
 
 // Detector finds anomalous buckets in a timeline.

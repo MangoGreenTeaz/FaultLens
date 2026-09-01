@@ -35,7 +35,9 @@ const nginxTimeLayout = "02/Jan/2006:15:04:05 -0700"
 
 // NginxParser parses Nginx access and error log lines. Access log fields are
 // stored in LogEvent.Fields; error log severity is mapped onto LogEvent.Level.
-type NginxParser struct{}
+type NginxParser struct {
+	issues int
+}
 
 // NewNginxParser returns an NginxParser.
 func NewNginxParser() *NginxParser { return &NginxParser{} }
@@ -49,7 +51,7 @@ func (*NginxParser) CanParse(line string) bool {
 }
 
 // Parse implements Parser.
-func (*NginxParser) Parse(line string) []*model.LogEvent {
+func (p *NginxParser) Parse(line string) []*model.LogEvent {
 	if m := accessLogRe.FindStringSubmatch(line); m != nil {
 		return []*model.LogEvent{parseAccessLog(line, m)}
 	}
@@ -57,14 +59,18 @@ func (*NginxParser) Parse(line string) []*model.LogEvent {
 		return []*model.LogEvent{parseErrorLog(line, m)}
 	}
 	// Not an Nginx line: emit nothing, the caller counts it as a warning.
+	p.issues++
 	return nil
 }
 
 // Flush implements Parser. Nginx parsing is stateless.
 func (*NginxParser) Flush() []*model.LogEvent { return nil }
 
+// Issues implements Parser.
+func (p *NginxParser) Issues() int { return p.issues }
+
 // Reset implements Parser.
-func (*NginxParser) Reset() {}
+func (p *NginxParser) Reset() { p.issues = 0 }
 
 // parseAccessLog builds a LogEvent from a matched access log line.
 func parseAccessLog(raw string, m []string) *model.LogEvent {

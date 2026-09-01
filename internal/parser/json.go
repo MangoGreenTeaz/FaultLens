@@ -21,7 +21,9 @@ var (
 // Known fields are mapped onto the structured fields; anything else is kept
 // verbatim in LogEvent.Fields. Malformed JSON lines produce no event so the
 // caller can count them as parsing warnings.
-type JSONParser struct{}
+type JSONParser struct {
+	issues int
+}
 
 // NewJSONParser returns a JSONParser.
 func NewJSONParser() *JSONParser { return &JSONParser{} }
@@ -39,10 +41,11 @@ func (*JSONParser) CanParse(line string) bool {
 }
 
 // Parse implements Parser.
-func (*JSONParser) Parse(line string) []*model.LogEvent {
+func (p *JSONParser) Parse(line string) []*model.LogEvent {
 	var raw map[string]any
 	if err := json.Unmarshal([]byte(line), &raw); err != nil {
 		// Malformed JSON: emit nothing; the caller counts the warning.
+		p.issues++
 		return nil
 	}
 
@@ -63,8 +66,11 @@ func (*JSONParser) Parse(line string) []*model.LogEvent {
 // Flush implements Parser. JSON parsing is stateless.
 func (*JSONParser) Flush() []*model.LogEvent { return nil }
 
+// Issues implements Parser.
+func (p *JSONParser) Issues() int { return p.issues }
+
 // Reset implements Parser.
-func (*JSONParser) Reset() {}
+func (p *JSONParser) Reset() { p.issues = 0 }
 
 // jsonTime extracts the event timestamp from the recognized alias keys.
 // Unparseable timestamps yield the zero time instead of failing.

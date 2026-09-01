@@ -36,5 +36,8 @@ func (*PlainTextParser) Parse(line string) []*model.LogEvent {
 // Flush implements Parser. Plain parsing is stateless.
 func (*PlainTextParser) Flush() []*model.LogEvent { return nil }
 
+// Issues implements Parser. Plain text never fails.
+func (*PlainTextParser) Issues() int { return 0 }
+
 // Reset implements Parser.
 func (*PlainTextParser) Reset() {}

@@ -18,12 +18,12 @@ const defaultMaxExamples = 3
 // ErrorGroup is a cluster of error events with an identical normalized
 // message.
 type ErrorGroup struct {
-	Fingerprint string
-	Message     string
-	Count       int
-	FirstSeen   time.Time
-	LastSeen    time.Time
-	Examples    []model.LogEvent
+	Fingerprint string           `json:"fingerprint"`
+	Message     string           `json:"message"`
+	Count       int              `json:"count"`
+	FirstSeen   time.Time        `json:"first_seen"`
+	LastSeen    time.Time        `json:"last_seen"`
+	Examples    []model.LogEvent `json:"examples"`
 }
 
 // Grouper accumulates error events into ErrorGroup clusters.

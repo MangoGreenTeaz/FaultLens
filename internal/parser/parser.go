@@ -31,6 +31,10 @@ type Parser interface {
 	Parse(line string) []*model.LogEvent
 	// Flush returns any buffered incomplete events (call at EOF).
 	Flush() []*model.LogEvent
+	// Issues returns the number of lines this parser could not convert
+	// into events (e.g. malformed JSON in JSON mode). Used to report
+	// parsing warnings without failing the whole run.
+	Issues() int
 	// Reset clears buffered state so the parser can be reused.
 	Reset()
 }

@@ -24,10 +24,10 @@ const (
 
 // Evidence is one verifiable fact that contributed to a diagnosis.
 type Evidence struct {
-	Timestamp time.Time
-	Type      string
-	Message   string
-	Weight    float64
+	Timestamp time.Time `json:"timestamp"`
+	Type      string    `json:"type"`
+	Message   string    `json:"message"`
+	Weight    float64   `json:"weight"`
 }
 
 // Diagnosis is the final root-cause verdict produced by the engine.
@@ -36,9 +36,9 @@ type Evidence struct {
 // derived from the evidence score, never hard-coded. If the evidence is too
 // weak, RootCause is "Insufficient evidence".
 type Diagnosis struct {
-	RootCause       string
-	Confidence      float64
-	Severity        Severity
-	Evidence        []Evidence
-	Recommendations []string
+	RootCause       string     `json:"root_cause"`
+	Confidence      float64    `json:"confidence"`
+	Severity        Severity   `json:"severity"`
+	Evidence        []Evidence `json:"evidence"`
+	Recommendations []string   `json:"recommendations"`
 }

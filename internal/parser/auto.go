@@ -57,6 +57,22 @@ func (a *AutoParser) Flush() []*model.LogEvent {
 	return out
 }
 
+// Issues implements Parser: delegates to the detected format.
+func (a *AutoParser) Issues() int {
+	if a.active == nil {
+		return 0
+	}
+	return a.active.Issues()
+}
+
+// Detected returns the locked-in format name, or "" while undecided.
+func (a *AutoParser) Detected() string {
+	if a.active == nil {
+		return ""
+	}
+	return a.active.Name()
+}
+
 // Reset implements Parser.
 func (a *AutoParser) Reset() {
 	a.active = nil
