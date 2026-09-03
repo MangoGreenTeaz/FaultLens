@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/faultlens/faultlens/internal/anomaly"
+	"github.com/faultlens/faultlens/internal/config"
 	"github.com/faultlens/faultlens/internal/diagnosis"
 	"github.com/faultlens/faultlens/internal/diagnosis/rules"
 	"github.com/faultlens/faultlens/internal/grouping"
@@ -28,6 +29,8 @@ type Options struct {
 	To   time.Time
 	// Source is a human-readable input description (file path or "stdin").
 	Source string
+	// Config carries the resolved configuration; nil means defaults.
+	Config *config.Config
 }
 
 // Summary holds high-level counters for the whole input.
@@ -112,7 +115,17 @@ func Run(r io.Reader, opts Options) (*Result, error) {
 		ErrorGroups: grouper.Groups(),
 		Timeline:    tl.Buckets(),
 	}
-	res.Anomalies = anomaly.New().Detect(res.Timeline)
+
+	cfg := opts.Config
+	if cfg == nil {
+		cfg = config.Default()
+	}
+	res.Anomalies = anomaly.NewWithConfig(anomaly.Config{
+		MinBaseline: cfg.Anomaly.MinBaseline,
+		ZScore:      cfg.Anomaly.ZScore,
+		MinIncrease: cfg.Anomaly.MinIncrease,
+		MinErrors:   cfg.Anomaly.MinErrors,
+	}).Detect(res.Timeline)
 
 	eng := diagnosis.NewEngine()
 	rules.RegisterDefaultRules(eng)

@@ -34,6 +34,7 @@ Run "faultlens <file>" for a full analysis report, or pipe logs in:
 	cmd.AddCommand(newErrorsCmd())
 	cmd.AddCommand(newTimelineCmd())
 	cmd.AddCommand(newIncidentCmd())
+	cmd.AddCommand(newConfigCmd())
 
 	return cmd
 }

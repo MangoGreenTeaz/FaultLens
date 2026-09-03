@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/faultlens/faultlens/internal/config"
 )
 
 func TestRunBasicAnalysis(t *testing.T) {
@@ -146,5 +148,46 @@ func TestRunMySQLIncidentDiagnosis(t *testing.T) {
 	}
 	if len(res.Diagnosis.Evidence) == 0 {
 		t.Error("diagnosis must carry evidence")
+	}
+}
+
+// TestConfigAnomalyThresholdChangesBehavior verifies the Phase 1 acceptance
+// criterion: configured thresholds really change analysis behavior.
+func TestConfigAnomalyThresholdChangesBehavior(t *testing.T) {
+	// 5 stable baseline minutes (2 errors each) followed by a spike minute
+	// (20 errors). With std == 0 the detector falls back to the increase
+	// multiple, gated by MinErrors.
+	var b strings.Builder
+	base := time.Date(2026, 8, 31, 14, 0, 0, 0, time.UTC)
+	for m := 0; m < 5; m++ {
+		for i := 0; i < 2; i++ {
+			ts := base.Add(time.Duration(m)*time.Minute + time.Duration(i)*time.Second)
+			b.WriteString(ts.Format("2006-01-02 15:04:05") + " ERROR baseline error\n")
+		}
+	}
+	for i := 0; i < 20; i++ {
+		ts := base.Add(5*time.Minute + time.Duration(i)*time.Second)
+		b.WriteString(ts.Format("2006-01-02 15:04:05") + " ERROR spike error\n")
+	}
+	logs := b.String()
+
+	// Default config: min_errors = 10 → the 20-error spike is flagged.
+	res, err := Run(strings.NewReader(logs), Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Anomalies) != 1 {
+		t.Errorf("default config: got %d anomalies, want 1", len(res.Anomalies))
+	}
+
+	// Custom config: min_errors = 30 → the spike is below the gate.
+	cfg := config.Default()
+	cfg.Anomaly.MinErrors = 30
+	res2, err := Run(strings.NewReader(logs), Options{Config: cfg})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res2.Anomalies) != 0 {
+		t.Errorf("min_errors=30: got %d anomalies, want 0", len(res2.Anomalies))
 	}
 }

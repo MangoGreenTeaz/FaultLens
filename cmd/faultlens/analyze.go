@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/faultlens/faultlens/internal/config"
 	"github.com/faultlens/faultlens/internal/engine"
 	"github.com/faultlens/faultlens/internal/output"
 	"github.com/spf13/cobra"
@@ -29,6 +30,8 @@ func addAnalyzeFlags(cmd *cobra.Command) {
 		"only analyze events at or after this time (RFC3339, e.g. 2026-08-31T14:00:00Z)")
 	cmd.PersistentFlags().StringVar(&toFlag, "to", "",
 		"only analyze events at or before this time (RFC3339)")
+	cmd.PersistentFlags().StringVar(&configFlag, "config", "",
+		"path to a configuration file (overrides project and user config)")
 }
 
 // runAnalysis is the shared body of the root, errors, timeline and incident
@@ -59,11 +62,17 @@ func runAnalysis(cmd *cobra.Command, args []string, kind string) error {
 		return err
 	}
 
+	cfg, err := config.Load(configFlag)
+	if err != nil {
+		return err
+	}
+
 	res, err := engine.Run(src, engine.Options{
 		Format: formatFlag,
 		From:   from,
 		To:     to,
 		Source: source,
+		Config: cfg,
 	})
 	if err != nil {
 		return err
