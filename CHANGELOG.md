@@ -5,6 +5,16 @@ All notable changes to FaultLens are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-09-03
+
+### Fixed
+
+- Windows release artifacts now ship a raw `.exe` (no zip wrapper) so users can
+  download and run them directly
+- Windows x86-64 artifacts are labeled `windows-64` instead of `windows-amd64`
+- README architecture no longer hard-codes the diagnosis rule count
+  ("6 rules" → "built-in/custom rules")
+
 ## [0.2.0] - 2026-09-03
 
 ### Added
