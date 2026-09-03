@@ -7,36 +7,51 @@ testable, and maintainable** code over feature count.
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Good First Issues](#good-first-issues)
 - [How to Add a Parser](#how-to-add-a-parser)
 - [How to Add a Diagnosis Rule](#how-to-add-a-diagnosis-rule)
+- [How to Add a Configuration Option](#how-to-add-a-configuration-option)
 - [How to Add Test Data](#how-to-add-test-data)
 - [Submitting a Pull Request](#submitting-a-pull-request)
 - [Code of Conduct](#code-of-conduct)
 
 ## Getting Started
 
-Clone the repository:
+Install the latest release:
 
 ```bash
-git clone https://github.com/faultlens/faultlens.git
-cd faultlens
+go install github.com/MangoGreenTeaz/FaultLens/cmd/faultlens@latest
 ```
 
-Build and verify:
+Or build from source:
 
 ```bash
+git clone https://github.com/MangoGreenTeaz/FaultLens.git
+cd FaultLens
 go build ./...
-go test ./...
-go vet ./...
 ```
 
-All code must be `gofmt`-clean. Run the checks before submitting:
+Run the checks before submitting:
 
 ```bash
 gofmt -l .
 go vet ./...
-go test ./...
+go test ./...        # add -short to skip the 500MB performance check
 ```
+
+## Good First Issues
+
+If you are new here, these are real, self-contained tasks to start with.
+Open an issue describing which one you are taking (or just open a PR):
+
+- **Add a parser fixture** — a small realistic log sample under
+  `testdata/<format>/` for a format we already parse.
+- **Add a malformed-log test** — a table-driven case for a parser covering a
+  malformed or boundary line.
+- **Add a diagnosis rule test** — a strong/weak/no-evidence case for a built-in
+  rule.
+- **Improve a CLI error message** — make an error clearer for end users.
+- **Improve documentation** — fix a README section or translate examples.
 
 ## How to Add a Parser
 
@@ -62,21 +77,23 @@ unified `model.LogEvent`.
      your format (never for continuation lines).
    - `Issues` counts lines your parser could not convert into events.
 
-2. **Register it in auto detection**: add your parser to the priority chain in
-   `detectFormat` in `internal/parser/auto.go`.
+2. **Register it**: add your parser to `detectFormat` in
+   `internal/parser/auto.go` (priority chain) and to `newParser` in
+   `internal/engine/engine.go` (`--format` flag). Mind the detection order:
+   more specific formats first.
 
-3. **Add table-driven tests** in `internal/parser/your_format_test.go`,
-   covering normal input, malformed input, and edge cases. If your format has
-   multi-line events, test aggregation and `Flush`.
+3. **Add fixtures** in `testdata/<format>/` and **table-driven tests** in
+   `internal/parser/your_format_test.go` covering normal, malformed, and edge
+   cases (multi-line aggregation and `Flush` if applicable).
 
-4. If your format introduces new structured fields, document them in the
-   `LogEvent.Fields` contract in `internal/model/event.go`.
+4. If your format introduces new structured fields, document them in
+   `internal/model/event.go`.
 
 ## How to Add a Diagnosis Rule
 
-Rules live in `internal/diagnosis/rules/`. Each rule evaluates one root-cause
-hypothesis against the pre-computed `diagnosis.DiagnosisContext` and returns a
-`model.Diagnosis`.
+Rules live in `internal/diagnosis/rules/`. First check whether a
+[custom rule](examples/disk-full/) already covers your case — users can define
+rules in YAML without code. Built-in rules are for widely applicable signals.
 
 1. **Implement `diagnosis.DiagnosisRule`**:
 
@@ -90,41 +107,57 @@ hypothesis against the pre-computed `diagnosis.DiagnosisContext` and returns a
 2. **Build confidence from explainable components** in
    `internal/diagnosis/score.go` (`ScoreStrong`, `ScoreSupporting`,
    `ScoreTemporal`, `ScoreDownstream`, `ScoreAnomaly`, `ScoreContradict`).
-   Never hard-code a confidence value. Rules must clamp to `[0, 1]` (the
-   engine does this automatically).
+   Never hard-code a confidence value.
 
-3. **Return `nil` when your rule finds no evidence** so the engine can skip it.
+3. **Return `nil` when your rule finds no evidence** so the engine skips it.
 
 4. **Provide read-only, low-risk recommendations** — never suggest
    kill/restart/delete/flush/drop style commands.
 
-5. **Register the rule** in `RegisterDefaultRules` in
-   `internal/diagnosis/rules/registry.go`. Order defines tie-breaking
-   priority.
+5. **Handle priority**: if your rule is an upstream failure (mq, network…),
+   add it to `upstreamDown` in `http.go` so HTTP 5xx downgrades correctly;
+   if it is a symptom, start from a supporting weight.
 
-6. **Add tests** in `internal/diagnosis/rules/` covering: strong evidence,
-   weak/insufficient evidence, and interaction with existing rules (e.g. a
-   symptom rule that must downgrade when an upstream cause exists).
+6. **Register** in `RegisterDefaultRules` in
+   `internal/diagnosis/rules/registry.go` (order defines tie-breaking).
+
+7. **Add tests** (strong/weak/no evidence) and an incident fixture under
+   `testdata/incidents/`; add the fixture to
+   `internal/engine/integration_test.go`.
+
+## How to Add a Configuration Option
+
+Configuration lives in `internal/config/`.
+
+1. **Add the field** to the matching struct in `internal/config/config.go`
+   with a `yaml:"..."` tag.
+2. **Add a default** in `Default()`.
+3. **Wire it into the merge** in `internal/config/load.go` (zero values must
+   not overwrite; use a pointer bool if `false` is meaningful).
+4. **Validate it** in `internal/config/validate.go`.
+5. **Consume it** in the relevant package (e.g. the anomaly detector reads
+   `cfg.Anomaly.*`).
+6. **Add tests** for the default, merge, and validation of the new option.
 
 ## How to Add Test Data
 
-- Format samples go in `testdata/<format>/` (e.g. `testdata/plain/basic.log`).
+- Format samples go in `testdata/<format>/`.
 - Incident scenarios go in `testdata/incidents/` and must simulate a realistic
   causal chain (e.g. `database failure → connection refused → app errors →
   HTTP 500`).
 - End-to-end tests in `internal/engine/integration_test.go` assert the
-  expected diagnosis for each incident fixture. **Diagnosis must come from log
-  evidence, never from the fixture file name.**
+  expected diagnosis. **Diagnosis must come from log evidence, never from the
+  fixture file name.**
 
 ## Submitting a Pull Request
 
 1. Fork the repository and create a branch: `git checkout -b feat/my-change`.
 2. Make focused, small changes. Keep each PR about one thing.
 3. Run `gofmt -l .`, `go vet ./...`, and `go test ./...` — all must pass.
-4. Commit with a clear message following the existing style
-   (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`).
-5. Open the PR against `main`. Describe what changed and why, and reference
-   the issue if one exists.
+4. Fill in the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
+5. Commit with a clear message following the existing style
+   (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `perf:`).
+6. Open the PR against `main`.
 
 ## Code of Conduct
 

@@ -1,0 +1,7 @@
+2026-08-31 10:00:01 INFO service started
+2026-08-31 10:00:02 INFO request handled
+2026-08-31 10:00:03 WARN slow request took 2.4s
+2026-08-31 10:00:04 ERROR connection refused 10.0.0.1:3306
+2026-08-31 10:00:05 INFO request handled
+2026-08-31 10:00:06 ERROR MySQL connection failed
+2026-08-31 10:00:07 ERROR HTTP 500 Internal Server Error

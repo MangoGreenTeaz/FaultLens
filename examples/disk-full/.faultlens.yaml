@@ -1,0 +1,13 @@
+custom_rules:
+  - id: disk_full
+    root_cause: "Disk full"
+    severity: critical
+    keywords:
+      - no space left on device
+    strong_weight: 0.40
+    supporting_keywords:
+      - write error
+    supporting_weight: 0.20
+    recommendations:
+      - "Check filesystem capacity"
+      - "Clean temporary files"

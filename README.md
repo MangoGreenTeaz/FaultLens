@@ -207,6 +207,53 @@ faultlens version         # print version
 | `--from` | RFC 3339 timestamp | — | Only events at/after this time |
 | `--to` | RFC 3339 timestamp | — | Only events at/before this time |
 
+## ⚙️ Configuration
+
+FaultLens works out of the box; configuration is optional and only enhances
+behavior. Generate and manage it with:
+
+```bash
+faultlens config init       # writes a .faultlens.yaml with defaults
+faultlens config show       # print the merged effective configuration
+faultlens config validate   # validate configuration files
+```
+
+Sources, lowest to highest priority: **built-in defaults** →
+`.faultlens.yaml` (project) → `~/.config/faultlens/config.yaml` (user) →
+`--config <file>` (explicit).
+
+Tune the anomaly detector and built-in rules:
+
+```yaml
+anomaly:
+  min_baseline: 5
+  z_score: 3.0
+  min_errors: 10
+
+rules:
+  database_unavailable:
+    enabled: true
+    threshold: 10
+```
+
+Define your own rules with `custom_rules` — no source changes needed
+(see [examples/disk-full](examples/disk-full/)):
+
+```yaml
+custom_rules:
+  - id: disk_full
+    root_cause: "Disk full"
+    severity: critical
+    keywords:
+      - no space left on device
+    strong_weight: 0.40
+    supporting_keywords:
+      - write error
+    supporting_weight: 0.20
+    recommendations:
+      - "Check filesystem capacity"
+```
+
 ## 🖨️ Output Formats
 
 - **terminal** — human-readable report (default).

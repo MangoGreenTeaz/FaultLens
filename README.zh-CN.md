@@ -198,6 +198,51 @@ faultlens version         # 打印版本号
 | `--from` | RFC 3339 时间 | — | 只分析该时间点之后的事件 |
 | `--to` | RFC 3339 时间 | — | 只分析该时间点之前的事件 |
 
+## ⚙️ 配置
+
+FaultLens 开箱即用;配置是可选的增强能力。生成与管理配置:
+
+```bash
+faultlens config init       # 生成 .faultlens.yaml(含默认值)
+faultlens config show       # 打印合并后的生效配置
+faultlens config validate   # 校验配置文件
+```
+
+来源优先级(低 → 高):**内置默认值** → `.faultlens.yaml`(项目)→
+`~/.config/faultlens/config.yaml`(用户)→ `--config <file>`(显式)。
+
+调整异常检测器与内置规则:
+
+```yaml
+anomaly:
+  min_baseline: 5
+  z_score: 3.0
+  min_errors: 10
+
+rules:
+  database_unavailable:
+    enabled: true
+    threshold: 10
+```
+
+用 `custom_rules` 定义自己的规则——无需修改源码
+(参见 [examples/disk-full](examples/disk-full/)):
+
+```yaml
+custom_rules:
+  - id: disk_full
+    root_cause: "Disk full"
+    severity: critical
+    keywords:
+      - no space left on device
+    strong_weight: 0.40
+    supporting_keywords:
+      - write error
+    supporting_weight: 0.20
+    recommendations:
+      - "Check filesystem capacity"
+```
+
 ## 🖨️ 输出格式
 
 - **terminal** — 人类可读的报告(默认)。
