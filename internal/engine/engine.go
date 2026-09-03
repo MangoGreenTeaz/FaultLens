@@ -6,6 +6,7 @@ package engine
 
 import (
 	"io"
+	"os"
 	"time"
 
 	"github.com/faultlens/faultlens/internal/anomaly"
@@ -21,7 +22,8 @@ import (
 
 // Options controls one analysis run.
 type Options struct {
-	// Format is "auto", "plain", "json", "java" or "nginx".
+	// Format is "auto", "plain", "json", "java", "nginx", "apache",
+	// "python", "syslog", "docker" or "kubernetes".
 	Format string
 	// From/To filter events by timestamp (inclusive). Zero values disable
 	// the corresponding bound.
@@ -58,68 +60,133 @@ type Result struct {
 	ConfigWarnings []string `json:"config_warnings,omitempty"`
 }
 
-// Run executes the full pipeline over r and returns the aggregated result.
+// analyzer accumulates events from one or more inputs into a single result.
+type analyzer struct {
+	opts     Options
+	grouper  *grouping.Grouper
+	tl       *timeline.Analyzer
+	events   []*model.LogEvent
+	sum      Summary
+	detected string // first auto-detected format across inputs
+}
+
+// newAnalyzer creates an empty analyzer for the given options.
+func newAnalyzer(opts Options) *analyzer {
+	return &analyzer{
+		opts:    opts,
+		grouper: grouping.New(),
+		tl:      timeline.New(),
+		sum:     Summary{Source: opts.Source, Format: opts.Format},
+	}
+}
+
+// Run executes the full pipeline over a single stream and returns the
+// aggregated result.
 func Run(r io.Reader, opts Options) (*Result, error) {
-	rd := input.NewReader(r, opts.Source)
-	p := newParser(opts.Format)
+	a := newAnalyzer(opts)
+	if err := a.consume(r, opts.Source, opts.Format); err != nil {
+		return nil, err
+	}
+	return a.result(), nil
+}
 
-	grouper := grouping.New()
-	tl := timeline.New()
-	var events []*model.LogEvent
-	sum := Summary{Source: opts.Source, Format: opts.Format}
+// RunFiles executes the pipeline over a list of files, merging all events
+// into one analysis. Each event's Source is the file it came from, so
+// error-group examples stay traceable to their origin file.
+func RunFiles(paths []string, opts Options) (*Result, error) {
+	a := newAnalyzer(opts)
+	for _, path := range paths {
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+		cerr := a.consume(f, path, opts.Format)
+		f.Close()
+		if cerr != nil {
+			return nil, cerr
+		}
+	}
+	return a.result(), nil
+}
 
-	consume := func(evs []*model.LogEvent) {
+// consume streams one input into the shared aggregators. Each input gets a
+// fresh parser, so auto format detection is per file.
+func (a *analyzer) consume(r io.Reader, source, format string) error {
+	rd := input.NewReader(r, source)
+	p := newParser(format)
+
+	// Stamp every produced event with its origin so error-group examples
+	// stay traceable to the file they came from.
+	setSource := func(evs []*model.LogEvent) {
 		for _, ev := range evs {
-			if !inRange(ev.Timestamp, opts.From, opts.To) {
-				continue
+			if ev.Source == "" {
+				ev.Source = source
 			}
-			sum.Events++
-			switch ev.Level {
-			case model.LevelError:
-				sum.Errors++
-			case model.LevelWarn:
-				sum.Warnings++
-			case model.LevelFatal:
-				sum.Fatal++
-			}
-			if !ev.Timestamp.IsZero() {
-				if sum.FirstEvent.IsZero() || ev.Timestamp.Before(sum.FirstEvent) {
-					sum.FirstEvent = ev.Timestamp
-				}
-				if ev.Timestamp.After(sum.LastEvent) {
-					sum.LastEvent = ev.Timestamp
-				}
-			}
-			if ev.Level == model.LevelError || ev.Level == model.LevelFatal {
-				events = append(events, ev)
-			}
-			grouper.Add(ev)
-			tl.Add(ev)
 		}
 	}
 
 	for rd.Scan() {
-		consume(p.Parse(rd.Text()))
+		evs := p.Parse(rd.Text())
+		setSource(evs)
+		a.consumeEvents(evs)
 	}
 	if err := rd.Err(); err != nil {
-		return nil, err
+		return err
 	}
-	consume(p.Flush())
+	evs := p.Flush()
+	setSource(evs)
+	a.consumeEvents(evs)
 
 	if ap, ok := p.(*parser.AutoParser); ok {
-		if d := ap.Detected(); d != "" {
-			sum.Format = d
+		if d := ap.Detected(); d != "" && a.detected == "" {
+			a.detected = d
+			a.sum.Format = d
 		}
 	}
-	sum.ParsingWarnings = p.Issues()
+	a.sum.ParsingWarnings += p.Issues()
+	return nil
+}
 
+// consumeEvents folds parsed events into the shared counters and aggregators.
+func (a *analyzer) consumeEvents(evs []*model.LogEvent) {
+	for _, ev := range evs {
+		if !inRange(ev.Timestamp, a.opts.From, a.opts.To) {
+			continue
+		}
+		a.sum.Events++
+		switch ev.Level {
+		case model.LevelError:
+			a.sum.Errors++
+		case model.LevelWarn:
+			a.sum.Warnings++
+		case model.LevelFatal:
+			a.sum.Fatal++
+		}
+		if !ev.Timestamp.IsZero() {
+			if a.sum.FirstEvent.IsZero() || ev.Timestamp.Before(a.sum.FirstEvent) {
+				a.sum.FirstEvent = ev.Timestamp
+			}
+			if ev.Timestamp.After(a.sum.LastEvent) {
+				a.sum.LastEvent = ev.Timestamp
+			}
+		}
+		if ev.Level == model.LevelError || ev.Level == model.LevelFatal {
+			a.events = append(a.events, ev)
+		}
+		a.grouper.Add(ev)
+		a.tl.Add(ev)
+	}
+}
+
+// result assembles the final Result from the shared aggregators.
+func (a *analyzer) result() *Result {
 	res := &Result{
-		Summary:     sum,
-		ErrorGroups: grouper.Groups(),
-		Timeline:    tl.Buckets(),
+		Summary:     a.sum,
+		ErrorGroups: a.grouper.Groups(),
+		Timeline:    a.tl.Buckets(),
 	}
 
-	cfg := opts.Config
+	cfg := a.opts.Config
 	if cfg == nil {
 		cfg = config.Default()
 	}
@@ -136,12 +203,12 @@ func Run(r io.Reader, opts Options) (*Result, error) {
 		res.ConfigWarnings = warnings
 	}
 	res.Diagnosis = eng.Diagnose(&diagnosis.DiagnosisContext{
-		Events:      events,
+		Events:      a.events,
 		ErrorGroups: res.ErrorGroups,
 		Timeline:    res.Timeline,
 		Anomalies:   res.Anomalies,
 	})
-	return res, nil
+	return res
 }
 
 // newParser maps a format flag to a concrete parser.

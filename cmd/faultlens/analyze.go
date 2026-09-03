@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"time"
 
@@ -19,6 +18,7 @@ var (
 	outputFileFlag string
 	fromFlag       string
 	toFlag         string
+	excludeFlag    string
 )
 
 // addAnalyzeFlags registers the persistent analysis flags.
@@ -35,27 +35,18 @@ func addAnalyzeFlags(cmd *cobra.Command) {
 		"path to a configuration file (overrides project and user config)")
 	cmd.PersistentFlags().StringVarP(&outputFileFlag, "output-file", "o", "",
 		"write the report to a file instead of stdout")
+	cmd.PersistentFlags().StringVar(&excludeFlag, "exclude", "",
+		"exclude files matching this glob pattern (e.g. '*.debug.log') when expanding directories")
 }
 
 // runAnalysis is the shared body of the root, errors, timeline and incident
 // commands. kind selects the report view.
+//
+// Input resolution:
+//   - no arguments        → stdin
+//   - one or more paths   → files, globs and directories are expanded and
+//     merged into a single analysis
 func runAnalysis(cmd *cobra.Command, args []string, kind string) error {
-	// Input: a file argument, or stdin when none is given.
-	var src io.Reader
-	var source string
-	if len(args) >= 1 {
-		f, err := os.Open(args[0])
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		src = f
-		source = args[0]
-	} else {
-		src = cmd.InOrStdin()
-		source = "stdin"
-	}
-
 	from, err := parseTimeFlag(fromFlag)
 	if err != nil {
 		return err
@@ -64,21 +55,41 @@ func runAnalysis(cmd *cobra.Command, args []string, kind string) error {
 	if err != nil {
 		return err
 	}
-
 	cfg, err := config.Load(configFlag)
 	if err != nil {
 		return err
 	}
 
-	res, err := engine.Run(src, engine.Options{
-		Format: formatFlag,
-		From:   from,
-		To:     to,
-		Source: source,
-		Config: cfg,
-	})
-	if err != nil {
-		return err
+	var res *engine.Result
+	if len(args) == 0 {
+		res, err = engine.Run(cmd.InOrStdin(), engine.Options{
+			Format: formatFlag,
+			From:   from,
+			To:     to,
+			Source: "stdin",
+			Config: cfg,
+		})
+		if err != nil {
+			return err
+		}
+	} else {
+		files, err := expandPaths(args, excludeFlag)
+		if err != nil {
+			return err
+		}
+		if len(files) == 0 {
+			return fmt.Errorf("no log files matched the given paths")
+		}
+		res, err = engine.RunFiles(files, engine.Options{
+			Format: formatFlag,
+			From:   from,
+			To:     to,
+			Source: fmt.Sprintf("%d files", len(files)),
+			Config: cfg,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	// Output destination: stdout, or a file when -o is given.

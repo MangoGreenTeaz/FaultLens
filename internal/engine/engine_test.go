@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -256,5 +258,51 @@ func TestInvalidCustomRuleDoesNotBreakBuiltins(t *testing.T) {
 	}
 	if len(res.ConfigWarnings) != 1 {
 		t.Errorf("ConfigWarnings = %v, want 1 warning for the invalid rule", res.ConfigWarnings)
+	}
+}
+
+// TestRunFilesMergesSources verifies multi-file analysis merges events and
+// keeps per-event source tracking.
+func TestRunFilesMergesSources(t *testing.T) {
+	dir := t.TempDir()
+	f1 := filepath.Join(dir, "a.log")
+	f2 := filepath.Join(dir, "b.log")
+	if err := os.WriteFile(f1, []byte("2026-08-31 14:32:01 ERROR boom\n2026-08-31 14:32:02 ERROR boom\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(f2, []byte("2026-08-31 14:32:03 ERROR boom\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := RunFiles([]string{f1, f2}, Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Summary.Events != 3 {
+		t.Errorf("Events = %d, want 3 (merged)", res.Summary.Events)
+	}
+	if res.Summary.Errors != 3 {
+		t.Errorf("Errors = %d, want 3", res.Summary.Errors)
+	}
+	// Identical normalized errors must merge into ONE group.
+	if len(res.ErrorGroups) != 1 {
+		t.Errorf("ErrorGroups = %d, want 1", len(res.ErrorGroups))
+	}
+	// Both source files must be traceable in the group examples.
+	found := map[string]bool{}
+	for _, g := range res.ErrorGroups {
+		for _, ex := range g.Examples {
+			found[ex.Source] = true
+		}
+	}
+	if !found[f1] || !found[f2] {
+		t.Errorf("examples missing source files: %v", found)
+	}
+}
+
+// TestRunFilesMissingFile verifies the error path.
+func TestRunFilesMissingFile(t *testing.T) {
+	if _, err := RunFiles([]string{filepath.Join(t.TempDir(), "nope.log")}, Options{}); err == nil {
+		t.Fatal("expected error for missing file")
 	}
 }

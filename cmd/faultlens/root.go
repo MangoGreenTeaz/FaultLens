@@ -23,7 +23,7 @@ Run "faultlens <file>" for a full analysis report, or pipe logs in:
     cat app.log | faultlens`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Args:          cobra.MaximumNArgs(1),
+		Args:          cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runAnalysis(cmd, args, "report")
 		},
