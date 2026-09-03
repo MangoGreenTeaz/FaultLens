@@ -42,12 +42,10 @@ jobs:
           name="faultlens-${VERSION}-${OS}-${ARCH}${ext}"
           ldflags="-X main.version=${VERSION} -X main.commit=${GITHUB_SHA::7} -X main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -ldflags "${ldflags}" -o "${name}" ./cmd/faultlens
-          echo "artifact=${name}" >> "$GITHUB_OUTPUT"
-          # Archive: tar.gz for unix, zip for windows.
+          # Windows ships the raw .exe so users can download and run it
+          # directly. Unix keeps a tar.gz archive to preserve the exec bit.
           if [ "$OS" = "windows" ]; then
-            zip "${name}.zip" "${name}"
-            rm "${name}"
-            echo "archive=${name}.zip" >> "$GITHUB_OUTPUT"
+            echo "archive=${name}" >> "$GITHUB_OUTPUT"
           else
             tar -czf "${name}.tar.gz" "${name}"
             rm "${name}"
