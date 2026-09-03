@@ -1,0 +1,5 @@
+2026-08-31 14:32:01 ERROR connection refused 10.0.0.1:5432
+2026-08-31 14:32:02 ERROR database unavailable
+2026-08-31 14:32:03 ERROR connection refused 10.0.0.1:5432
+2026-08-31 14:32:04 ERROR database unavailable
+2026-08-31 14:32:05 ERROR network unreachable 10.0.0.1

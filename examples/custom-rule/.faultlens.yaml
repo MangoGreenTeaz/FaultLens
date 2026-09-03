@@ -1,0 +1,15 @@
+custom_rules:
+  - id: database_connection_failure
+    root_cause: "Database connection failure"
+    severity: high
+    keywords:
+      - connection refused
+      - database unavailable
+    strong_weight: 0.40
+    supporting_keywords:
+      - network unreachable
+    supporting_weight: 0.20
+    enable_downstream: true
+    recommendations:
+      - "Check database availability"
+      - "Check network connectivity"
