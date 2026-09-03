@@ -173,7 +173,7 @@ internal/normalize/  错误归一化
 internal/grouping/   错误聚类 + 指纹
 internal/timeline/   按分钟时间桶
 internal/anomaly/    z-score 异常检测
-internal/diagnosis/  Root Cause 引擎 + 6 条规则
+internal/diagnosis/  Root Cause 引擎 + 内置/自定义规则
 internal/output/     Terminal / JSON / Markdown 渲染器
 testdata/            样例日志与事故 fixtures
 ```

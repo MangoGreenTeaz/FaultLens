@@ -181,7 +181,7 @@ internal/normalize/  error normalization
 internal/grouping/   error clustering + fingerprints
 internal/timeline/   per-minute time buckets
 internal/anomaly/    z-score anomaly detection
-internal/diagnosis/  root-cause engine + 6 rules
+internal/diagnosis/  root-cause engine + built-in/custom rules
 internal/output/     terminal / JSON / Markdown renderers
 testdata/            sample logs and incident fixtures
 ```
