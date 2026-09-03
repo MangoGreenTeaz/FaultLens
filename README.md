@@ -214,6 +214,42 @@ faultlens version         # print version
 - **markdown** — tables and headings, ready for GitHub issues, postmortems and
   PR comments.
 
+## 🤖 GitHub Actions
+
+FaultLens fits naturally into CI/CD pipelines: JSON for machine consumption,
+HTML as a shareable artifact.
+
+Analyze logs and produce both artifacts:
+
+```yaml
+- name: Analyze logs with FaultLens
+  run: |
+    faultlens ./logs/app.log --output json > faultlens.json
+    faultlens ./logs/app.log --output html -o faultlens-report.html
+
+- name: Upload artifacts
+  uses: actions/upload-artifact@v4
+  with:
+    name: faultlens-analysis
+    path: |
+      faultlens.json
+      faultlens-report.html
+```
+
+Or use the official composite action shipped in this repository:
+
+```yaml
+- uses: ./.github/actions/faultlens
+  with:
+    log-file: testdata/incidents/mysql-outage.log
+    output: html
+    output-file: faultlens-report.html
+```
+
+A complete, runnable example is in
+[`.github/workflows/ci-analysis.yml`](.github/workflows/ci-analysis.yml) — it
+analyzes a fixture, uploads JSON + HTML artifacts, and writes a job summary.
+
 ## 🧪 Testing
 
 ```bash

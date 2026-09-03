@@ -1,0 +1,61 @@
+name: faultlens-analysis
+
+# Example workflow that runs FaultLens on a real fixture and publishes the
+# results as CI artifacts plus a job summary. Trigger it manually, or adapt it
+# to your own logs.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: FaultLens analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Analyze logs (JSON)
+        run: go run ./cmd/faultlens testdata/incidents/mysql-outage.log --output json > faultlens.json
+
+      - name: Generate HTML report
+        run: go run ./cmd/faultlens testdata/incidents/mysql-outage.log --output html -o faultlens-report.html
+
+      - name: Upload JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: faultlens-json
+          path: faultlens.json
+
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: faultlens-report
+          path: faultlens-report.html
+
+      - name: Write job summary
+        run: |
+          ROOT_CAUSE=$(grep -o '"root_cause": *"[^"]*"' faultlens.json | head -1 | sed 's/.*: *"//;s/"$//')
+          CONFIDENCE=$(grep -o '"confidence": *[0-9.]*' faultlens.json | head -1 | sed 's/.*: *//')
+          EVENTS=$(grep -o '"events": *[0-9]*' faultlens.json | head -1 | sed 's/.*: *//')
+          ERRORS=$(grep -o '"errors": *[0-9]*' faultlens.json | head -1 | sed 's/.*: *//')
+          {
+            echo "## FaultLens Analysis"
+            echo ""
+            echo "- **Root Cause:** $ROOT_CAUSE"
+            echo "- **Confidence:** $CONFIDENCE"
+            echo "- **Events:** $EVENTS / **Errors:** $ERRORS"
+            echo ""
+            echo "Artifacts: \`faultlens.json\` and \`faultlens-report.html\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "summary written"

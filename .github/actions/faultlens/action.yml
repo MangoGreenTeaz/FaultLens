@@ -1,0 +1,28 @@
+name: 'FaultLens'
+description: 'Analyze a log file with FaultLens and produce a report'
+inputs:
+  log-file:
+    description: 'Path to the log file to analyze'
+    required: true
+  output:
+    description: 'Report format: json, html or terminal'
+    required: false
+    default: 'html'
+  output-file:
+    description: 'Path where the report is written'
+    required: false
+    default: 'faultlens-report'
+runs:
+  using: composite
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: ${{ github.action_path }}/../../../go.mod
+    - name: Build faultlens
+      shell: bash
+      working-directory: ${{ github.action_path }}/../../..
+      run: go build -o "$RUNNER_TEMP/faultlens" ./cmd/faultlens
+    - name: Analyze logs
+      shell: bash
+      run: '"$RUNNER_TEMP/faultlens" "${{ inputs.log-file }}" --output "${{ inputs.output }}" -o "${{ inputs.output-file }}"'

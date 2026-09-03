@@ -168,6 +168,32 @@ func TestOutputMarkdownFlag(t *testing.T) {
 	}
 }
 
+func TestOutputHTMLFlag(t *testing.T) {
+	logs := "2026-08-31 14:32:01 ERROR boom\n"
+	out, err := executeStdin(logs, "--output", "html")
+	if err != nil {
+		t.Fatalf("html output failed: %v", err)
+	}
+	if !strings.Contains(out, "<!DOCTYPE html>") {
+		t.Errorf("expected html document, got:\n%s", out)
+	}
+}
+
+func TestOutputFileFlag(t *testing.T) {
+	dir := t.TempDir()
+	outPath := filepath.Join(dir, "report.html")
+	if _, err := executeStdin("2026-08-31 14:32:01 ERROR boom\n", "--output", "html", "-o", outPath); err != nil {
+		t.Fatalf("file output failed: %v", err)
+	}
+	data, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("report file not written: %v", err)
+	}
+	if !strings.Contains(string(data), "FaultLens Report") {
+		t.Error("report file has unexpected content")
+	}
+}
+
 func TestInvalidFormatFlag(t *testing.T) {
 	logs := "hello\n"
 	if _, err := executeStdin(logs, "--format", "bogus"); err != nil {

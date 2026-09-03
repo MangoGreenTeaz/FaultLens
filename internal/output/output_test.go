@@ -178,6 +178,57 @@ func TestRenderMarkdownIncident(t *testing.T) {
 	}
 }
 
+func TestRenderHTML(t *testing.T) {
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, sampleResult()); err != nil {
+		t.Fatal(err)
+	}
+	s := buf.String()
+	for _, want := range []string{
+		"<!DOCTYPE html>", "FaultLens Report", "Summary", "Diagnosis", "Error Groups",
+		"Database unavailable", "182391", "Connection refused &lt;IP&gt;:&lt;PORT&gt;",
+		"Evidence", "Check MySQL availability",
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf("HTML report missing %q", want)
+		}
+	}
+}
+
+func TestRenderHTMLOfflineNoExternalResources(t *testing.T) {
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, sampleResult()); err != nil {
+		t.Fatal(err)
+	}
+	s := buf.String()
+	// The report must be fully self-contained for CI artifacts and offline
+	// debugging: no external URLs, no CDN references.
+	for _, forbid := range []string{"http://", "https://", "cdn.", "<script"} {
+		if strings.Contains(s, forbid) {
+			t.Errorf("HTML report must not reference external resources, found %q", forbid)
+		}
+	}
+	if !strings.Contains(s, "<style>") {
+		t.Error("HTML report must inline its CSS")
+	}
+}
+
+func TestRenderHTMLInsufficient(t *testing.T) {
+	res := sampleResult()
+	res.Diagnosis = &model.Diagnosis{
+		RootCause:  "Insufficient evidence",
+		Confidence: 0.21,
+		Severity:   model.SeverityLow,
+	}
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, res); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), "Insufficient evidence") {
+		t.Error("HTML must surface insufficient evidence")
+	}
+}
+
 func TestComma(t *testing.T) {
 	if got := comma(0); got != "0" {
 		t.Errorf("comma(0) = %q", got)

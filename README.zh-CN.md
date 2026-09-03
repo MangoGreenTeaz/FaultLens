@@ -204,6 +204,42 @@ faultlens version         # 打印版本号
   `{ "summary", "error_groups", "timeline", "anomalies", "diagnosis" }`。
 - **markdown** — 表格与标题,适合 GitHub Issue、Postmortem、PR 评论。
 
+## 🤖 GitHub Actions
+
+FaultLens 可以自然融入 CI/CD 工作流:JSON 供机器消费,HTML 作为可分享的
+artifact。
+
+分析日志并产出两种 artifact:
+
+```yaml
+- name: Analyze logs with FaultLens
+  run: |
+    faultlens ./logs/app.log --output json > faultlens.json
+    faultlens ./logs/app.log --output html -o faultlens-report.html
+
+- name: Upload artifacts
+  uses: actions/upload-artifact@v4
+  with:
+    name: faultlens-analysis
+    path: |
+      faultlens.json
+      faultlens-report.html
+```
+
+或者使用本仓库内置的官方 composite action:
+
+```yaml
+- uses: ./.github/actions/faultlens
+  with:
+    log-file: testdata/incidents/mysql-outage.log
+    output: html
+    output-file: faultlens-report.html
+```
+
+完整的可运行示例见
+[`.github/workflows/ci-analysis.yml`](.github/workflows/ci-analysis.yml)——它会
+分析 fixture、上传 JSON + HTML artifacts,并写入 job summary。
+
 ## 🧪 测试
 
 ```bash

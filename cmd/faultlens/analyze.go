@@ -14,10 +14,11 @@ import (
 
 // Analysis flags shared by the root command and its subcommands.
 var (
-	formatFlag string
-	outputFlag string
-	fromFlag   string
-	toFlag     string
+	formatFlag     string
+	outputFlag     string
+	outputFileFlag string
+	fromFlag       string
+	toFlag         string
 )
 
 // addAnalyzeFlags registers the persistent analysis flags.
@@ -32,6 +33,8 @@ func addAnalyzeFlags(cmd *cobra.Command) {
 		"only analyze events at or before this time (RFC3339)")
 	cmd.PersistentFlags().StringVar(&configFlag, "config", "",
 		"path to a configuration file (overrides project and user config)")
+	cmd.PersistentFlags().StringVarP(&outputFileFlag, "output-file", "o", "",
+		"write the report to a file instead of stdout")
 }
 
 // runAnalysis is the shared body of the root, errors, timeline and incident
@@ -78,13 +81,26 @@ func runAnalysis(cmd *cobra.Command, args []string, kind string) error {
 		return err
 	}
 
+	// Output destination: stdout, or a file when -o is given.
+	out := cmd.OutOrStdout()
+	if outputFileFlag != "" {
+		f, err := os.Create(outputFileFlag)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		out = f
+	}
+
 	switch outputFlag {
 	case "json":
-		return output.RenderJSON(cmd.OutOrStdout(), res)
+		return output.RenderJSON(out, res)
 	case "markdown":
-		return output.RenderMarkdown(cmd.OutOrStdout(), res, kind)
+		return output.RenderMarkdown(out, res, kind)
+	case "html":
+		return output.RenderHTML(out, res)
 	default:
-		return output.RenderTerminal(cmd.OutOrStdout(), res, kind)
+		return output.RenderTerminal(out, res, kind)
 	}
 }
 
