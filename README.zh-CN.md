@@ -38,7 +38,7 @@
 - [路线图](#路线图)
 - [许可](#许可)
 
-## 演示
+## 🎬 演示
 
 ```bash
 faultlens examples/basic/app.log
@@ -102,7 +102,7 @@ Recommendations
 4. Check network connectivity between application and database
 ```
 
-## 为什么用 FaultLens
+## 💡 为什么用 FaultLens
 
 日志文件中已经包含了事故的全部故事——但它们嘈杂、非结构化、充满重复错误。
 FaultLens 将它们转化为可解释的诊断:
@@ -113,7 +113,7 @@ FaultLens 将它们转化为可解释的诊断:
 - **CI/CD 友好** — 稳定 JSON 输出与 HTML artifact 可融入任意管线。
 - **可扩展** — 用 YAML 定义诊断规则,无需修改源码。
 
-## 特性
+## ✨ 特性
 
 - 🔍 **9 种日志格式解析器** — 纯文本、JSON、Java/Spring Boot(多行堆栈跟踪
   合并为单个事件)、Nginx、Apache、Python、Syslog(RFC 3164 + 5424)、Docker
@@ -130,7 +130,7 @@ FaultLens 将它们转化为可解释的诊断:
 - 🔀 **Diff** — 对比两次分析结果(部署前后)。
 - 🤖 **GitHub Actions** — 在 CI 中分析日志,发布 JSON + HTML artifacts。
 
-## 快速开始
+## 🚀 快速开始
 
 ```bash
 go install github.com/MangoGreenTeaz/FaultLens/cmd/faultlens@latest
@@ -148,7 +148,7 @@ cat app.log | faultlens
 docker logs some-container | faultlens incident
 ```
 
-## 安装
+## 📦 安装
 
 **环境要求:** [Go 1.22+](https://go.dev/dl/)
 
@@ -175,7 +175,7 @@ go build -o faultlens ./cmd/faultlens
 faultlens version
 ```
 
-## 支持的日志格式
+## 📊 支持的日志格式
 
 | 格式 | 状态 | 说明 |
 | --- | --- | --- |
@@ -192,7 +192,7 @@ faultlens version
 可用 `--format auto|plain|json|java|nginx|apache|python|syslog|docker|kubernetes`
 覆盖内容检测。
 
-## 诊断规则
+## 🧠 诊断规则
 
 14 条内置规则,每条按证据 → 置信度打分:
 
@@ -213,7 +213,7 @@ faultlens version
 | `connection_timeout` | Connection timeout | medium | 读/套接字/连接超时 |
 | `slow_query` | Slow query | medium | 慢查询(症状型) |
 
-## 自定义规则
+## ⚙️ 自定义规则
 
 无需修改源码即可扩展诊断——用 YAML 定义规则:
 
@@ -262,7 +262,7 @@ faultlens config validate   # 校验配置文件
 
 可运行示例见 [examples/custom-rule](examples/custom-rule/)。
 
-## 多文件分析
+## 📁 多文件分析
 
 将多个日志作为一次事故分析:
 
@@ -275,7 +275,7 @@ faultlens logs/ --exclude '*.debug.log'    # 排除模式
 
 所有文件的事件合并为单一时间线、聚类与诊断;每个错误示例保留来源文件。
 
-## GitHub Actions
+## 🤖 GitHub Actions
 
 在 CI 中运行 FaultLens 并发布报告 artifacts:
 
@@ -329,7 +329,7 @@ jobs:
 composite action 在 GitHub Actions 内直接运行 FaultLens,无需托管服务。完整可
 运行 workflow 见 [`.github/workflows/ci-analysis.yml`](.github/workflows/ci-analysis.yml)。
 
-## HTML 报告
+## 🖥️ HTML 报告
 
 生成自包含的离线事故报告:
 
@@ -346,7 +346,7 @@ faultlens app.log --output html -o report.html
 
 适合 CI artifact、事故分享与 postmortem。
 
-## Diff
+## 🔀 Diff
 
 对比两次分析结果:
 
@@ -359,7 +359,7 @@ faultlens diff before.json after.json
 
 展示新增/消失/变化的错误组、诊断变化与置信度变化——非常适合定位部署回归。
 
-## 工作原理
+## 🔬 工作原理
 
 ```
 input → parser → normalize → grouping → timeline → anomaly → diagnosis → report
@@ -374,7 +374,7 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
    不会压过其上游根因。
 6. **报告** 以你选择的格式输出。
 
-## 架构
+## 🏗️ 架构
 
 ```
 input (文件 / stdin / 目录 / glob)
@@ -411,7 +411,7 @@ examples/            可运行的端到端示例
 核心分析包与 CLI 解耦,管线未来可复用于 GitHub Actions 或 API 集成。完整设计
 见 [docs/architecture.md](docs/architecture.md)。
 
-## 示例
+## 📂 示例
 
 每个示例都可运行,输出来自真实 CLI:
 
@@ -424,7 +424,7 @@ examples/            可运行的端到端示例
 | [custom-rule](examples/custom-rule/) | 从零定义自定义规则 |
 | [ci](examples/ci/) | GitHub Actions workflow |
 
-## 开发
+## 🛠️ 开发
 
 ```bash
 go build ./...
@@ -433,21 +433,21 @@ go vet ./...
 gofmt -l .
 ```
 
-## 贡献
+## 🤝 贡献
 
 欢迎贡献——解析器、诊断规则、fixtures 与文档。参见
 [CONTRIBUTING.md](CONTRIBUTING.md),包含 **good first contributions**。
 
-## 安全
+## 🔒 安全
 
 漏洞上报方式见 [SECURITY.md](SECURITY.md)。
 
-## 路线图
+## 🗺️ 路线图
 
 V3 想法记录(未实现)见 [plan-v2.md](plan-v2.md):实时 tail、daemon 模式、
 Web UI、规则学习、跨主机时间线对齐。
 
-## 许可
+## 📄 许可
 
 FaultLens 以 [MIT 许可证](LICENSE) 发布。
 

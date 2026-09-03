@@ -39,7 +39,7 @@
 - [Roadmap](#roadmap)
 - [License](#license)
 
-## Demo
+## 🎬 Demo
 
 ```bash
 faultlens examples/basic/app.log
@@ -103,7 +103,7 @@ Recommendations
 4. Check network connectivity between application and database
 ```
 
-## Why FaultLens
+## 💡 Why FaultLens
 
 Log files already contain the story of an incident — but they are noisy,
 unstructured, and full of duplicated errors. FaultLens turns them into an
@@ -118,7 +118,7 @@ explainable diagnosis:
   pipeline.
 - **Extensible** — define your own diagnosis rules in YAML, no source changes.
 
-## Features
+## ✨ Features
 
 - 🔍 **9 log format parsers** — plain text, JSON, Java/Spring Boot (stack
   traces merged into one event), Nginx, Apache, Python, Syslog (RFC 3164 +
@@ -140,7 +140,7 @@ explainable diagnosis:
 - 🔀 **Diff** — compare two analysis runs (before/after deploy).
 - 🤖 **GitHub Actions** — analyze logs in CI, publish JSON + HTML artifacts.
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 go install github.com/MangoGreenTeaz/FaultLens/cmd/faultlens@latest
@@ -158,7 +158,7 @@ cat app.log | faultlens
 docker logs some-container | faultlens incident
 ```
 
-## Installation
+## 📦 Installation
 
 **Requirements:** [Go 1.22+](https://go.dev/dl/)
 
@@ -185,7 +185,7 @@ Verify:
 faultlens version
 ```
 
-## Supported Log Formats
+## 📊 Supported Log Formats
 
 | Format | Status | Notes |
 | --- | --- | --- |
@@ -202,7 +202,7 @@ faultlens version
 Use `--format auto|plain|json|java|nginx|apache|python|syslog|docker|kubernetes`
 to override content-based detection.
 
-## Diagnosis Rules
+## 🧠 Diagnosis Rules
 
 14 built-in rules, each scoring evidence → confidence:
 
@@ -223,7 +223,7 @@ to override content-based detection.
 | `connection_timeout` | Connection timeout | medium | read/socket/connect timeouts |
 | `slow_query` | Slow query | medium | slow queries (symptom-type) |
 
-## Custom Rules
+## ⚙️ Custom Rules
 
 Extend diagnosis without changing source code — define rules in YAML:
 
@@ -274,7 +274,7 @@ Configuration sources, lowest → highest: built-in defaults →
 
 See [examples/custom-rule](examples/custom-rule/) for a runnable example.
 
-## Multi-file Analysis
+## 📁 Multi-file Analysis
 
 Analyze many logs as one incident:
 
@@ -288,7 +288,7 @@ faultlens logs/ --exclude '*.debug.log'    # exclude a pattern
 Events from all files are merged into one timeline, grouping and diagnosis;
 each error example keeps its origin file.
 
-## GitHub Actions
+## 🤖 GitHub Actions
 
 Run FaultLens in CI and publish the report as artifacts:
 
@@ -343,7 +343,7 @@ The composite action runs FaultLens inside GitHub Actions without requiring a
 hosted service. A complete runnable workflow is in
 [`.github/workflows/ci-analysis.yml`](.github/workflows/ci-analysis.yml).
 
-## HTML Report
+## 🖥️ HTML Report
 
 Generate a self-contained, offline incident report:
 
@@ -360,7 +360,7 @@ faultlens app.log --output html -o report.html
 
 Suitable for CI artifacts, incident sharing and postmortems.
 
-## Diff
+## 🔀 Diff
 
 Compare two analysis runs:
 
@@ -374,7 +374,7 @@ faultlens diff before.json after.json
 Shows added/removed/changed error groups, diagnosis changes, and confidence
 changes — ideal for deploy regressions.
 
-## How It Works
+## 🔬 How It Works
 
 ```
 input → parser → normalize → grouping → timeline → anomaly → diagnosis → report
@@ -390,7 +390,7 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
    confidence; symptoms (HTTP 5xx) never beat their upstream cause.
 6. **Report** in the format you choose.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 input (file / stdin / directory / glob)
@@ -428,7 +428,7 @@ Core analysis packages are independent of the CLI, so the pipeline can be
 reused by future GitHub Actions or API integrations. See
 [docs/architecture.md](docs/architecture.md) for the full design.
 
-## Examples
+## 📂 Examples
 
 Every example is runnable and produces its output from the real CLI:
 
@@ -441,7 +441,7 @@ Every example is runnable and produces its output from the real CLI:
 | [custom-rule](examples/custom-rule/) | Defining a custom rule from scratch |
 | [ci](examples/ci/) | GitHub Actions workflow |
 
-## Development
+## 🛠️ Development
 
 ```bash
 go build ./...
@@ -450,22 +450,22 @@ go vet ./...
 gofmt -l .
 ```
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome — parsers, diagnosis rules, fixtures and docs. See
 [CONTRIBUTING.md](CONTRIBUTING.md), including **good first contributions**.
 
-## Security
+## 🔒 Security
 
 See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
 
-## Roadmap
+## 🗺️ Roadmap
 
 V3 ideas are recorded (not implemented) in [plan-v2.md](plan-v2.md):
 real-time tail, daemon mode, web UI, rule learning, cross-host timeline
 alignment.
 
-## License
+## 📄 License
 
 FaultLens is released under the [MIT License](LICENSE).
 
