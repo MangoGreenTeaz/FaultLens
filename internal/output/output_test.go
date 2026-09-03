@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/anomaly"
-	"github.com/faultlens/faultlens/internal/engine"
-	"github.com/faultlens/faultlens/internal/grouping"
-	"github.com/faultlens/faultlens/internal/model"
-	"github.com/faultlens/faultlens/internal/timeline"
+	"github.com/MangoGreenTeaz/FaultLens/internal/anomaly"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/grouping"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/timeline"
 )
 
 func sampleResult() *engine.Result {

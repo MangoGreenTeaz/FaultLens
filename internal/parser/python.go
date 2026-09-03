@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Python standard logging format: "2026-08-31 14:32:01,123 ERROR root: message".

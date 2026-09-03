@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Parser turns a stream of log lines into model.LogEvent values.

@@ -8,8 +8,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
-	"github.com/faultlens/faultlens/internal/normalize"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/normalize"
 )
 
 // defaultMaxExamples bounds how many raw examples are retained per group.

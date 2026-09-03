@@ -5,38 +5,44 @@ All notable changes to FaultLens are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-09-03
+
+### Added
+
+- **V1 core pipeline** — streaming input → parser → normalize → grouping →
+  timeline → anomaly → evidence-based diagnosis → report
+- **Parsers (9)** — plain, JSON, Java/Spring Boot (stack-trace aggregation),
+  Nginx, Apache, Python, Syslog (RFC 3164 + 5424), Docker JSON, Kubernetes;
+  content-based auto detection
+- **Diagnosis rules (14)** — database, redis, oom, timeout, http 5xx, crash,
+  disk full, certificate expired, mq, connection pool, network partition,
+  cpu saturation, slow query, deadlock
+- **Configuration system** — built-in/project/user/`--config` merge,
+  `faultlens config init|show|validate`
+- **Custom rule engine** — YAML-defined diagnosis rules without source changes
+- **Multi-file input** — glob, directory recursion, `--exclude`, source
+  tracking
+- **HTML report** — single-file, offline, inline SVG timeline
+- **`faultlens diff`** — compare two JSON reports (added/removed/changed
+  groups, diagnosis changes)
+- **GitHub Actions** — CI workflow plus official composite action and job
+  summary
+- **Performance** — streaming HTTP 5xx stats (500MB processed with ~2MB
+  resident heap), benchmarks and a 500MB acceptance check
+- **Release engineering** — module path unified to
+  `github.com/MangoGreenTeaz/FaultLens`, multi-platform release workflow
+  (linux/darwin/windows × amd64/arm64), checksums, ldflags version injection
+- **OSS infrastructure** — bilingual README, CONTRIBUTING, SECURITY,
+  CHANGELOG, issue/PR templates, examples
+
+### Changed
+
+- Module path: `github.com/faultlens/faultlens` → `github.com/MangoGreenTeaz/FaultLens`
+- Default version: `0.2.0-dev`
+
 ## [Unreleased]
 
-### Added (V1 development)
+### Planned
 
-- **Phase 1 — Project bootstrap**
-  - Go module, Cobra CLI skeleton, `version` command
-  - README skeleton, GitHub Actions CI (gofmt + vet + test)
-- **Phase 2 — Model + Input**
-  - Unified `LogEvent` model with `LogLevel` (TRACE…FATAL + UNKNOWN)
-  - Streaming file and stdin input with long-line tolerance
-- **Phase 3 — Parser**
-  - Plain text, JSON (field aliases), Java/Spring Boot (multi-line stack
-    trace aggregation), Nginx access/error parsers
-  - Content-based auto format detection (JSON → Java → Nginx → Plain)
-- **Phase 4 — Normalize + Grouping**
-  - Dynamic value normalization (IP, port, UUID, number, timestamp, URL,
-    path, hex) with HTTP status-code protection against over-normalization
-  - SHA-256 fingerprinting and error clustering
-- **Phase 5 — Timeline + Anomaly**
-  - Per-minute time buckets
-  - Explainable z-score anomaly detection (baseline + increase multiple)
-- **Phase 6 — Diagnosis**
-  - Diagnosis engine with evidence-based confidence scoring
-  - Six root-cause rules: database, redis, oom, timeout, http 5xx, crash
-  - Symptom-vs-cause priority (OOM > crash; upstream > HTTP 5xx)
-  - `Insufficient evidence` reporting below the confidence threshold
-- **Phase 7 — Output + CLI**
-  - Terminal, JSON and Markdown renderers (4 report views each)
-  - Full CLI: `faultlens <file>`, `errors`, `timeline`, `incident`
-  - Flags: `--format`, `--output`, `--from`, `--to`
-- **Phase 8 — End-to-end tests**
-  - Realistic format samples and incident fixtures under `testdata/`
-  - Full-pipeline integration tests (MySQL/Redis/OOM/5xx/crash scenarios)
-- **Phase 9 — Documentation**
-  - Bilingual README, CONTRIBUTING, SECURITY, CHANGELOG
+- V3 ideas only (real-time tail, daemon mode, web UI, rule learning) — see
+  `plan-v2.md`

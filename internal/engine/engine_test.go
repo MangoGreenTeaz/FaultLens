@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/config"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/config"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 func TestRunBasicAnalysis(t *testing.T) {

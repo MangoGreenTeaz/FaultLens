@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Kubernetes container log format:

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/timeline"
+	"github.com/MangoGreenTeaz/FaultLens/internal/timeline"
 )
 
 // bucket builds a timeline from per-bucket error counts starting at base.

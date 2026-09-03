@@ -55,18 +55,18 @@ cat app.log | faultlens
 
 **环境要求:** [Go 1.22+](https://go.dev/dl/)
 
-从源码构建(模块发布前推荐方式):
+安装最新发布版:
+
+```bash
+go install github.com/MangoGreenTeaz/FaultLens/cmd/faultlens@latest
+```
+
+或从源码构建:
 
 ```bash
 git clone https://github.com/MangoGreenTeaz/FaultLens.git
 cd FaultLens
 go build -o faultlens ./cmd/faultlens
-```
-
-模块发布到 `faultlens` org 后,可直接安装:
-
-```bash
-go install github.com/faultlens/faultlens/cmd/faultlens@latest
 ```
 
 验证安装:

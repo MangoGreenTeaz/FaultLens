@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/engine"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // RenderMarkdown writes the report as Markdown suitable for GitHub issues,

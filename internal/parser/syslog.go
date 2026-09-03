@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Syslog RFC 3164: <134>Aug 31 14:32:01 hostname app[123]: error message

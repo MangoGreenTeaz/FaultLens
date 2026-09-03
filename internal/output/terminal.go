@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/faultlens/faultlens/internal/engine"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 const sepLine = "────────────────────────────────────────────"

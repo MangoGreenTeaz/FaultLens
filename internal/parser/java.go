@@ -3,7 +3,7 @@ package parser
 import (
 	"strings"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // JavaParser parses Java / Spring Boot logs and aggregates multi-line stack

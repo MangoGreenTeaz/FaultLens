@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 func ts(h, m, s int) time.Time {

@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/config"
-	"github.com/faultlens/faultlens/internal/diagnosis"
-	"github.com/faultlens/faultlens/internal/grouping"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/config"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis"
+	"github.com/MangoGreenTeaz/FaultLens/internal/grouping"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // base, grp and fiveXX are shared with rules_test.go (same package).

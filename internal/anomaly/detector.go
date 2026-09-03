@@ -7,7 +7,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/timeline"
+	"github.com/MangoGreenTeaz/FaultLens/internal/timeline"
 )
 
 // Default configuration values.

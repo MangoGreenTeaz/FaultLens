@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/grouping"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/grouping"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Confidence score components (section 21 of the spec). Every rule builds its

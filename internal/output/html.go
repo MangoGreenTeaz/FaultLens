@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/faultlens/faultlens/internal/anomaly"
-	"github.com/faultlens/faultlens/internal/engine"
-	"github.com/faultlens/faultlens/internal/timeline"
+	"github.com/MangoGreenTeaz/FaultLens/internal/anomaly"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/timeline"
 )
 
 // maxTimelineBars caps how many buckets the SVG shows; older buckets are

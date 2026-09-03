@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // DefaultInterval is the default bucket width (one minute).

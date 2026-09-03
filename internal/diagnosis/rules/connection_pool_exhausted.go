@@ -1,8 +1,8 @@
 package rules
 
 import (
-	"github.com/faultlens/faultlens/internal/diagnosis"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // ConnectionPoolExhaustedRule detects connection pool starvation. Pool

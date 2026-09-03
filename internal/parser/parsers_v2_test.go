@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // --- Apache ---

@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/faultlens/faultlens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
 )
 
 // GroupDiff describes one error group that appeared, disappeared or changed

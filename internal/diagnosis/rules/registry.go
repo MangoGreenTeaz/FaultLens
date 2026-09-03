@@ -2,7 +2,7 @@
 package rules
 
 import (
-	"github.com/faultlens/faultlens/internal/diagnosis"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis"
 )
 
 // Shared evidence thresholds used across rules. Kept in one place so tuning

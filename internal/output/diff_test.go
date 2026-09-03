@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/faultlens/faultlens/internal/engine"
-	"github.com/faultlens/faultlens/internal/grouping"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/grouping"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 func diffResult(events int, groups []grouping.ErrorGroup, root string, conf float64) *engine.Result {

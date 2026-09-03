@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/faultlens/faultlens/internal/config"
-	"github.com/faultlens/faultlens/internal/diagnosis"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/config"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Default weights applied when a custom rule does not set them explicitly.

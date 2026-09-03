@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/faultlens/faultlens/internal/engine"
-	"github.com/faultlens/faultlens/internal/output"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/output"
 	"github.com/spf13/cobra"
 )
 

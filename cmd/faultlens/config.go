@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/faultlens/faultlens/internal/config"
+	"github.com/MangoGreenTeaz/FaultLens/internal/config"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )

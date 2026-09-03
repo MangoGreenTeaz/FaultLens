@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // Apache access log formats: common, combined and vhost-combined. The vhost

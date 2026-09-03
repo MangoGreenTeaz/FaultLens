@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/anomaly"
-	"github.com/faultlens/faultlens/internal/diagnosis"
-	"github.com/faultlens/faultlens/internal/grouping"
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/anomaly"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis"
+	"github.com/MangoGreenTeaz/FaultLens/internal/grouping"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 func base() time.Time {

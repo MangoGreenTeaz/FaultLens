@@ -9,15 +9,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/anomaly"
-	"github.com/faultlens/faultlens/internal/config"
-	"github.com/faultlens/faultlens/internal/diagnosis"
-	"github.com/faultlens/faultlens/internal/diagnosis/rules"
-	"github.com/faultlens/faultlens/internal/grouping"
-	"github.com/faultlens/faultlens/internal/input"
-	"github.com/faultlens/faultlens/internal/model"
-	"github.com/faultlens/faultlens/internal/parser"
-	"github.com/faultlens/faultlens/internal/timeline"
+	"github.com/MangoGreenTeaz/FaultLens/internal/anomaly"
+	"github.com/MangoGreenTeaz/FaultLens/internal/config"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis"
+	"github.com/MangoGreenTeaz/FaultLens/internal/diagnosis/rules"
+	"github.com/MangoGreenTeaz/FaultLens/internal/grouping"
+	"github.com/MangoGreenTeaz/FaultLens/internal/input"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/parser"
+	"github.com/MangoGreenTeaz/FaultLens/internal/timeline"
 )
 
 // Options controls one analysis run.

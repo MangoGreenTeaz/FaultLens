@@ -3,7 +3,7 @@ package parser
 import (
 	"strings"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // PlainTextParser parses simple "timestamp LEVEL message" lines.

@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 // feedAll feeds every line into p and returns all produced events including

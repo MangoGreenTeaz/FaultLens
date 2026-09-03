@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/faultlens/faultlens/internal/engine"
+	"github.com/MangoGreenTeaz/FaultLens/internal/engine"
 )
 
 // RenderJSON writes the full analysis result as a stable, tool-friendly JSON

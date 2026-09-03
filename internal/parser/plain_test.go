@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faultlens/faultlens/internal/model"
+	"github.com/MangoGreenTeaz/FaultLens/internal/model"
 )
 
 func TestPlainParseBasic(t *testing.T) {
