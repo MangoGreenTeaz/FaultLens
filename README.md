@@ -1,6 +1,6 @@
 # FaultLens
 
-> See beyond the error. — 看见错误背后的真相。
+> See beyond the error.
 
 **🌐 Language:** [English](README.md) | [简体中文](README.zh-CN.md)
 
