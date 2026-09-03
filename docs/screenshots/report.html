@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaultLens Report</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 24px; background: #f6f8fa; color: #24292f; }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 28px 0 8px; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; }
+  .muted { color: #57606a; }
+  .card { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; margin: 8px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .stat .value { font-size: 1.4rem; font-weight: 600; }
+  .stat .label { color: #57606a; font-size: 0.8rem; }
+  .severity-critical { color: #cf222e; font-weight: 600; }
+  .severity-high { color: #bc4c00; font-weight: 600; }
+  .severity-medium { color: #9a6700; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #d0d7de; font-size: 0.9rem; }
+  th { color: #57606a; font-weight: 500; }
+  ul { margin: 4px 0; }
+  code { background: #f0f1f3; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #0d1117; color: #e6edf3; }
+    .card { background: #161b22; border-color: #30363d; }
+    h2 { border-color: #30363d; }
+    th, td { border-color: #30363d; }
+    th, .label, .muted { color: #8b949e; }
+    code { background: #21262d; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>FaultLens Report</h1>
+  <p class="muted">See beyond the error.</p>
+
+  <h2>Summary</h2>
+  <div class="grid">
+    <div class="card stat"><div class="value">11</div><div class="label">Events</div></div>
+    <div class="card stat"><div class="value">8</div><div class="label">Errors</div></div>
+    <div class="card stat"><div class="value">0</div><div class="label">Warnings</div></div>
+    <div class="card stat"><div class="value">0</div><div class="label">Fatal</div></div>
+  </div>
+  <div class="card">
+    <div><strong>Source:</strong> 1 files</div>
+    <div><strong>Format:</strong> java</div>
+    <div><strong>Time Range:</strong> 2026-08-31 14:31:00 - 2026-08-31 14:35:00</div>
+    
+  </div>
+
+  
+  <h2>Timeline</h2>
+  <div class="card"><svg viewBox="0 0 800 120" role="img" aria-label="Error timeline"><line x1="0" y1="100" x2="800" y2="100" stroke="#d0d7de"/><rect x="0.0" y="99.0" width="266.17" height="1.0" fill="#0969da"/><rect x="266.7" y="0.0" width="266.17" height="100.0" fill="#0969da"/><rect x="533.3" y="99.0" width="266.17" height="1.0" fill="#0969da"/><text x="0.0" y="116" font-size="10" fill="#8b949e">14:31</text><text x="266.7" y="116" font-size="10" fill="#8b949e">14:32</text><text x="533.3" y="116" font-size="10" fill="#8b949e">14:35</text></svg></div>
+  
+
+  
+
+  <h2>Diagnosis</h2>
+  <div class="card">
+    <div class="severity-critical">Root Cause: Database unavailable</div>
+    <div>Confidence: 0.70</div>
+    <div>Severity: critical</div>
+    
+    <div style="margin-top:8px"><strong>Evidence:</strong></div>
+    <ul>
+      <li>14:32:02 — <code>ERROR_PATTERN</code> database-related errors detected</li><li>14:32:01 — <code>ERROR_PATTERN</code> connection failures detected</li><li>14:32:05 — <code>DOWNSTREAM_IMPACT</code> HTTP 5xx errors observed downstream</li><li>14:32:05 — <code>TIMELINE_CORRELATION</code> database errors preceded HTTP 5xx spike</li>
+    </ul>
+    
+    
+    <div style="margin-top:8px"><strong>Recommended:</strong></div>
+    <ol>
+      <li>Check MySQL availability</li><li>Check database connection limit</li><li>Check recent database restart</li><li>Check network connectivity between application and database</li>
+    </ol>
+    
+  </div>
+
+  <h2>Error Groups</h2>
+  
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Error</th><th>Occurrences</th><th>First seen</th></tr>
+      <tr><td>1</td><td><code>Connection refused &lt;IP&gt;:&lt;PORT&gt;</code></td><td>3</td><td>14:32:01</td></tr><tr><td>2</td><td><code>MySQL connection failed</code></td><td>3</td><td>14:32:02</td></tr><tr><td>3</td><td><code>HTTP 500 Internal Server Error</code></td><td>2</td><td>14:32:05</td></tr>
+    </table>
+  </div>
+  
+
+  
+  <h2>Source Files</h2>
+  <div class="card">
+    <ul><li><code>examples\database-outage\app.log</code></li></ul>
+  </div>
+  
+
+  
+</div>
+</body>
+</html>

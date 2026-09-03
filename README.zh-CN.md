@@ -337,6 +337,8 @@ composite action 在 GitHub Actions 内直接运行 FaultLens,无需托管服务
 faultlens app.log --output html -o report.html
 ```
 
+![HTML Report](docs/screenshots/html-report.png)
+
 - **无 CDN、无外部 JavaScript、无后端、无网络依赖**
 - 内联 CSS + 内联 SVG 错误时间线(异常桶高亮)
 - 区段:summary、timeline、error groups、diagnosis、evidence、recommendations、
@@ -373,6 +375,20 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
 6. **报告** 以你选择的格式输出。
 
 ## 架构
+
+```
+input (文件 / stdin / 目录 / glob)
+        ↓
+parser(9 种格式,基于内容自动检测)
+        ↓
+normalize → grouping(SHA-256 指纹)
+        ↓
+timeline → anomaly(与基线对比的 z-score)
+        ↓
+diagnosis(内置规则 + 自定义规则)
+        ↓
+terminal / json / markdown / html
+```
 
 ```
 cmd/faultlens/       CLI 入口(Cobra)

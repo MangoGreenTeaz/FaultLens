@@ -351,6 +351,8 @@ Generate a self-contained, offline incident report:
 faultlens app.log --output html -o report.html
 ```
 
+![HTML Report](docs/screenshots/html-report.png)
+
 - **No CDN, no external JavaScript, no backend, no network dependency**
 - Inline CSS + an inline SVG error timeline (anomalous buckets highlighted)
 - Sections: summary, timeline, error groups, diagnosis, evidence,
@@ -389,6 +391,20 @@ input → parser → normalize → grouping → timeline → anomaly → diagnos
 6. **Report** in the format you choose.
 
 ## Architecture
+
+```
+input (file / stdin / directory / glob)
+        ↓
+parser (9 formats, content-based auto detection)
+        ↓
+normalize → grouping (SHA-256 fingerprints)
+        ↓
+timeline → anomaly (z-score vs baseline)
+        ↓
+diagnosis (built-in rules + custom rules)
+        ↓
+terminal / json / markdown / html
+```
 
 ```
 cmd/faultlens/       CLI entry point (Cobra)
