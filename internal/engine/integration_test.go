@@ -20,6 +20,14 @@ func TestIncidentFixturesDiagnosis(t *testing.T) {
 		{"oom.log", "Out of memory"},
 		{"http-5xx.log", "Insufficient evidence"},
 		{"application-crash.log", "Application crash"},
+		{"disk-full.log", "Disk full"},
+		{"certificate-expired.log", "Certificate expired"},
+		{"mq-outage.log", "Message queue unavailable"},
+		{"connection-pool-exhausted.log", "Connection pool exhausted"},
+		{"network-partition.log", "Network partition"},
+		{"cpu-saturation.log", "CPU saturation"},
+		{"slow-query.log", "Slow query"},
+		{"deadlock.log", "Deadlock detected"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.file, func(t *testing.T) {

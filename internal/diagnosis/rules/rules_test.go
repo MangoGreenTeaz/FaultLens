@@ -208,7 +208,7 @@ func TestCrashRuleDowngradesWithOOM(t *testing.T) {
 func TestRegistryRegistersAllRules(t *testing.T) {
 	e := diagnosis.NewEngine()
 	RegisterDefaultRules(e)
-	if e.RuleCount() != 6 {
-		t.Errorf("RuleCount = %d, want 6", e.RuleCount())
+	if e.RuleCount() != 14 {
+		t.Errorf("RuleCount = %d, want 14", e.RuleCount())
 	}
 }

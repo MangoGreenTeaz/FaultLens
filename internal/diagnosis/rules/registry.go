@@ -17,7 +17,7 @@ const (
 	crashVolumeThreshold = 5
 )
 
-// RegisterDefaultRules wires the six built-in rules into the engine.
+// RegisterDefaultRules wires the built-in rules into the engine.
 // Later registrations win ties, so the order below defines the priority for
 // equal-confidence hypotheses.
 func RegisterDefaultRules(e *diagnosis.Engine) *diagnosis.Engine {
@@ -27,5 +27,13 @@ func RegisterDefaultRules(e *diagnosis.Engine) *diagnosis.Engine {
 	e.AddRule(NewTimeoutRule())
 	e.AddRule(NewHTTPRule())
 	e.AddRule(NewCrashRule())
+	e.AddRule(NewDiskFullRule())
+	e.AddRule(NewCertificateExpiredRule())
+	e.AddRule(NewMQUnavailableRule())
+	e.AddRule(NewConnectionPoolExhaustedRule())
+	e.AddRule(NewNetworkPartitionRule())
+	e.AddRule(NewCPUSaturationRule())
+	e.AddRule(NewSlowQueryRule())
+	e.AddRule(NewDeadlockRule())
 	return e
 }

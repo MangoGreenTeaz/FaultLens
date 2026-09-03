@@ -1,0 +1,26 @@
+2026-08-31 14:31:00 INFO message consumed
+2026-08-31 14:31:01 INFO message consumed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:01 ERROR rabbitmq connection failed
+2026-08-31 14:32:02 ERROR Connection refused 10.0.0.6:5672
+2026-08-31 14:32:02 ERROR Connection refused 10.0.0.6:5672
+2026-08-31 14:32:02 ERROR Connection refused 10.0.0.6:5672
+2026-08-31 14:32:02 ERROR Connection refused 10.0.0.6:5672
+2026-08-31 14:32:02 ERROR Connection refused 10.0.0.6:5672
+2026-08-31 14:32:02 ERROR Connection refused 10.0.0.6:5672
+2026-08-31 14:32:05 ERROR HTTP 500 Internal Server Error
+2026-08-31 14:32:05 ERROR HTTP 500 Internal Server Error
+2026-08-31 14:32:05 ERROR HTTP 500 Internal Server Error
+2026-08-31 14:32:05 ERROR HTTP 500 Internal Server Error
+2026-08-31 14:32:05 ERROR HTTP 500 Internal Server Error
+2026-08-31 14:32:05 ERROR HTTP 500 Internal Server Error

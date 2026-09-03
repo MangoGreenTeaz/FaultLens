@@ -196,7 +196,7 @@ func TestConfigAnomalyThresholdChangesBehavior(t *testing.T) {
 // TestCustomRuleChangesDiagnosis verifies a user-defined rule really changes
 // the diagnosis outcome.
 func TestCustomRuleChangesDiagnosis(t *testing.T) {
-	logs := strings.Repeat("2026-08-31 14:32:01 ERROR no space left on device\n", 5)
+	logs := strings.Repeat("2026-08-31 14:32:01 ERROR custom service failure\n", 5)
 
 	// Without a custom rule, no built-in rule matches → insufficient.
 	res, err := Run(strings.NewReader(logs), Options{})
@@ -207,21 +207,21 @@ func TestCustomRuleChangesDiagnosis(t *testing.T) {
 		t.Fatalf("without custom rule: %q, want Insufficient evidence", res.Diagnosis.RootCause)
 	}
 
-	// With a custom disk_full rule the same logs yield a real diagnosis.
+	// With a custom rule the same logs yield a real diagnosis.
 	cfg := config.Default()
 	cfg.CustomRules = []config.CustomRuleConfig{{
-		ID:              "disk_full",
-		RootCause:       "Disk full",
+		ID:              "custom_service_down",
+		RootCause:       "Custom service down",
 		Severity:        "critical",
-		Keywords:        []string{"no space left on device"},
-		Recommendations: []string{"Check filesystem capacity"},
+		Keywords:        []string{"custom service failure"},
+		Recommendations: []string{"Check the custom service"},
 	}}
 	res2, err := Run(strings.NewReader(logs), Options{Config: cfg})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res2.Diagnosis.RootCause != "Disk full" {
-		t.Fatalf("with custom rule: %q, want Disk full", res2.Diagnosis.RootCause)
+	if res2.Diagnosis.RootCause != "Custom service down" {
+		t.Fatalf("with custom rule: %q, want Custom service down", res2.Diagnosis.RootCause)
 	}
 	if res2.Diagnosis.Severity != model.SeverityCritical {
 		t.Errorf("Severity = %q, want critical", res2.Diagnosis.Severity)

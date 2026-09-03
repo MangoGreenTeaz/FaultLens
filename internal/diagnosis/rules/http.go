@@ -47,9 +47,10 @@ func (*HTTPRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
 			diagnosis.NewAnomalyEvidence(ctx.Anomalies[0].Bucket, "error rate anomaly detected", diagnosis.ScoreAnomaly))
 	}
 
-	// Contradiction: a clear upstream cause exists (database/redis down),
-	// making the 5xx spike a symptom rather than the root cause.
-	if databaseDown(ctx) || redisDown(ctx) {
+	// Contradiction: a clear upstream cause exists (database/redis/mq/
+	// network down), making the 5xx spike a symptom rather than the root
+	// cause.
+	if upstreamDown(ctx) {
 		conf += diagnosis.ScoreContradict
 		evidence = append(evidence,
 			model.Evidence{
@@ -79,4 +80,22 @@ func databaseDown(ctx *diagnosis.DiagnosisContext) bool {
 func redisDown(ctx *diagnosis.DiagnosisContext) bool {
 	count, _, _ := diagnosis.CountKeywordGroups(ctx.ErrorGroups, redisStrongKeywords)
 	return count >= strongEvidenceThreshold
+}
+
+// mqDown reports whether strong message-queue evidence exists.
+func mqDown(ctx *diagnosis.DiagnosisContext) bool {
+	count, _, _ := diagnosis.CountKeywordGroups(ctx.ErrorGroups, mqStrongKeywords)
+	return count >= strongEvidenceThreshold
+}
+
+// networkDown reports whether strong network-failure evidence exists.
+func networkDown(ctx *diagnosis.DiagnosisContext) bool {
+	count, _, _ := diagnosis.CountKeywordGroups(ctx.ErrorGroups, networkStrongKeywords)
+	return count >= strongEvidenceThreshold
+}
+
+// upstreamDown reports whether any upstream failure has strong evidence,
+// which makes an HTTP 5xx spike a downstream symptom.
+func upstreamDown(ctx *diagnosis.DiagnosisContext) bool {
+	return databaseDown(ctx) || redisDown(ctx) || mqDown(ctx) || networkDown(ctx)
 }
