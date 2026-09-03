@@ -39,7 +39,11 @@ jobs:
         run: |
           ext=""
           if [ "$OS" = "windows" ]; then ext=".exe"; fi
-          name="faultlens-${VERSION}-${OS}-${ARCH}${ext}"
+          # Label the artifact intuitively: x86-64 Windows is just
+          # "windows-64", ARM64 keeps its arch name to stay distinct.
+          label="${ARCH}"
+          if [ "$OS" = "windows" ] && [ "$ARCH" = "amd64" ]; then label="64"; fi
+          name="faultlens-${VERSION}-${OS}-${label}${ext}"
           ldflags="-X main.version=${VERSION} -X main.commit=${GITHUB_SHA::7} -X main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -ldflags "${ldflags}" -o "${name}" ./cmd/faultlens
           # Windows ships the raw .exe so users can download and run it
