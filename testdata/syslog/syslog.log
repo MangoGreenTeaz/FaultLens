@@ -1,0 +1,4 @@
+<134>Aug 31 14:32:01 web-01 app[1234]: connection refused to upstream 10.0.0.9:8080
+<135>Aug 31 14:32:02 web-01 app[1234]: request failed, retrying
+<38>1 2026-08-31T14:32:03.123Z api-01 orders-api 5678 ID47 - database connection pool exhausted
+<134>1 2026-08-31T14:32:04.456Z api-01 orders-api 5678 ID48 - slow query detected (took 12.3s)

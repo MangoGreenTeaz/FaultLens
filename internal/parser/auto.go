@@ -93,13 +93,22 @@ func (a *AutoParser) activate() {
 
 // detectFormat classifies the buffered lines into a concrete parser.
 func detectFormat(lines []string) Parser {
+	hasDocker := false
 	hasJSON := false
 	hasJava := false
+	hasSyslog := false
 	hasNginx := false
+	hasApache := false
+	hasK8s := false
+	hasPython := false
 
 	for _, line := range lines {
 		s := strings.TrimSpace(line)
 		if s == "" {
+			continue
+		}
+		if dockerJSONCanParse(s) {
+			hasDocker = true
 			continue
 		}
 		if s[0] == '{' || s[0] == '[' {
@@ -109,24 +118,75 @@ func detectFormat(lines []string) Parser {
 				continue
 			}
 		}
-		if accessLogRe.MatchString(line) || errorLogRe.MatchString(line) {
-			hasNginx = true
+		// Kubernetes rows also match the Python pattern structurally
+		// ("stderr F error: ..."), so they must be checked first.
+		if k8sRe.MatchString(line) {
+			hasK8s = true
+			continue
+		}
+		// Python rows use comma-fractional timestamps, which Go's time.Parse
+		// accepts, so they would be misclassified as Java. Check Python
+		// before Java.
+		if pythonRe.MatchString(line) {
+			hasPython = true
 			continue
 		}
 		if isJavaEventStart(line) || isStackContinuation(line) || isExceptionLine(line) {
 			hasJava = true
 			continue
 		}
+		if syslog3164Re.MatchString(line) || syslog5424Re.MatchString(line) {
+			hasSyslog = true
+			continue
+		}
+		if accessLogRe.MatchString(line) || errorLogRe.MatchString(line) {
+			hasNginx = true
+			continue
+		}
+		if apacheRe.MatchString(line) {
+			hasApache = true
+			continue
+		}
 	}
 
 	switch {
+	// Docker JSON is a specific subset of general JSON: check it first so
+	// container logs get their dedicated parser.
+	case hasDocker:
+		return NewDockerJSONParser()
 	case hasJSON:
 		return NewJSONParser()
 	case hasJava:
 		return NewJavaParser()
+	case hasSyslog:
+		return NewSyslogParser()
 	case hasNginx:
 		return NewNginxParser()
+	case hasApache:
+		return NewApacheParser()
+	case hasPython:
+		return NewPythonParser()
+	case hasK8s:
+		return NewKubernetesParser()
 	default:
 		return NewPlainTextParser()
 	}
+}
+
+// dockerJSONCanParse reports whether s is a Docker JSON log object (a "log"
+// key plus a "stream" or "time" key).
+func dockerJSONCanParse(s string) bool {
+	if len(s) == 0 || s[0] != '{' {
+		return false
+	}
+	var m map[string]any
+	if err := json.Unmarshal([]byte(s), &m); err != nil {
+		return false
+	}
+	if _, ok := m["log"]; !ok {
+		return false
+	}
+	_, hasStream := m["stream"]
+	_, hasTime := m["time"]
+	return hasStream || hasTime
 }

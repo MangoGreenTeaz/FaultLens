@@ -155,6 +155,16 @@ func newParser(format string) parser.Parser {
 		return parser.NewJavaParser()
 	case "nginx":
 		return parser.NewNginxParser()
+	case "apache":
+		return parser.NewApacheParser()
+	case "python":
+		return parser.NewPythonParser()
+	case "syslog":
+		return parser.NewSyslogParser()
+	case "docker":
+		return parser.NewDockerJSONParser()
+	case "kubernetes":
+		return parser.NewKubernetesParser()
 	default:
 		return parser.NewAutoParser()
 	}

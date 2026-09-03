@@ -92,6 +92,11 @@ func TestFormatFixturesDetected(t *testing.T) {
 		{"json/basic.jsonl", "json"},
 		{"java/spring.log", "java"},
 		{"nginx/access.log", "nginx"},
+		{"apache/access.log", "apache"},
+		{"python/app.log", "python"},
+		{"syslog/syslog.log", "syslog"},
+		{"docker/container.jsonl", "docker"},
+		{"kubernetes/pod.log", "kubernetes"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.file, func(t *testing.T) {

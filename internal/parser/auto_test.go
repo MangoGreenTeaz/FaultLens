@@ -122,6 +122,100 @@ func TestAutoEmptyInput(t *testing.T) {
 	}
 }
 
+func TestAutoDetectApache(t *testing.T) {
+	p := NewAutoParser()
+	// The vhost prefix is Apache-specific and does not match the Nginx
+	// pattern, so a vhost-combined row must route to the Apache parser.
+	line := `example.com:80 127.0.0.1 - - [31/Aug/2026:14:32:01 +0800] "GET /api HTTP/1.1" 200 123 "-" "Mozilla/5.0"`
+	var all []*model.LogEvent
+	for i := 0; i < sniffLimit; i++ {
+		all = append(all, p.Parse(line)...)
+	}
+	all = append(all, p.Flush()...)
+	if len(all) == 0 {
+		t.Fatal("expected events from Apache detection")
+	}
+	if p.active == nil || p.active.Name() != "apache" {
+		t.Errorf("detected format = %v, want apache", p.active.Name())
+	}
+	if all[0].Fields["status"] != "200" {
+		t.Errorf("status = %q", all[0].Fields["status"])
+	}
+}
+
+func TestAutoDetectPython(t *testing.T) {
+	p := NewAutoParser()
+	line := "2026-08-31 14:32:01,123 ERROR root: database down"
+	var all []*model.LogEvent
+	for i := 0; i < sniffLimit; i++ {
+		all = append(all, p.Parse(line)...)
+	}
+	all = append(all, p.Flush()...)
+	if len(all) == 0 {
+		t.Fatal("expected events from Python detection")
+	}
+	if p.active == nil || p.active.Name() != "python" {
+		t.Errorf("detected format = %v, want python", p.active.Name())
+	}
+	if all[0].Level != model.LevelError {
+		t.Errorf("Level = %q, want ERROR", all[0].Level)
+	}
+}
+
+func TestAutoDetectSyslog(t *testing.T) {
+	p := NewAutoParser()
+	lines := []string{
+		"<131>Aug 31 14:32:01 web-01 app[42]: database down",
+		"<134>1 2026-08-31T14:32:03.123Z api-01 orders-api 5678 ID47 - pool exhausted",
+	}
+	var all []*model.LogEvent
+	for i := 0; i < sniffLimit; i++ {
+		all = append(all, p.Parse(lines[i%len(lines)])...)
+	}
+	if len(all) == 0 {
+		t.Fatal("expected events from Syslog detection")
+	}
+	if p.active == nil || p.active.Name() != "syslog" {
+		t.Errorf("detected format = %v, want syslog", p.active.Name())
+	}
+}
+
+func TestAutoDetectDocker(t *testing.T) {
+	p := NewAutoParser()
+	line := `{"log":"error: db down","stream":"stderr","time":"2026-08-31T14:32:01.123Z"}`
+	var all []*model.LogEvent
+	for i := 0; i < sniffLimit; i++ {
+		all = append(all, p.Parse(line)...)
+	}
+	if len(all) == 0 {
+		t.Fatal("expected events from Docker detection")
+	}
+	if p.active == nil || p.active.Name() != "docker" {
+		t.Errorf("detected format = %v, want docker", p.active.Name())
+	}
+	if all[0].Message != "error: db down" {
+		t.Errorf("Message = %q, want error: db down", all[0].Message)
+	}
+}
+
+func TestAutoDetectKubernetes(t *testing.T) {
+	p := NewAutoParser()
+	line := "2026-08-31T14:32:02.456Z stderr F error: database connection failed"
+	var all []*model.LogEvent
+	for i := 0; i < sniffLimit; i++ {
+		all = append(all, p.Parse(line)...)
+	}
+	if len(all) == 0 {
+		t.Fatal("expected events from Kubernetes detection")
+	}
+	if p.active == nil || p.active.Name() != "kubernetes" {
+		t.Errorf("detected format = %v, want kubernetes", p.active.Name())
+	}
+	if all[0].Fields["stream"] != "stderr" {
+		t.Errorf("stream = %q", all[0].Fields["stream"])
+	}
+}
+
 func TestAutoBlankLinesSkipped(t *testing.T) {
 	p := NewAutoParser()
 	for i := 0; i < sniffLimit; i++ {

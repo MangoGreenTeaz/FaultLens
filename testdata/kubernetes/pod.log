@@ -1,0 +1,4 @@
+2026-08-31T14:32:01.123Z stdout F starting application
+2026-08-31T14:32:02.456Z stderr F error: database connection failed
+2026-08-31T14:32:03.789Z stdout P partial log line
+2026-08-31T14:32:04.000Z stdout F request completed

@@ -1,0 +1,4 @@
+example.com:80 127.0.0.1 - - [31/Aug/2026:14:32:01 +0800] "GET /api HTTP/1.1" 200 123 "-" "Mozilla/5.0"
+example.com:80 10.0.0.5 - admin [31/Aug/2026:14:32:02 +0800] "POST /orders HTTP/1.1" 503 0 "-" "curl/8.0"
+www.example.org:443 127.0.0.1 - - [31/Aug/2026:14:32:03 +0800] "GET /health HTTP/1.1" 200 12 "-" "Go-http-client/1.1"
+example.com:80 127.0.0.1 - - [31/Aug/2026:14:32:04 +0800] "GET /users HTTP/1.1" 404 36 "https://example.com/" "Mozilla/5.0"

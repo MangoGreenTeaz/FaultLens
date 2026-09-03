@@ -1,0 +1,4 @@
+2026-08-31 14:32:01,123 ERROR root: database connection failed
+2026-08-31 14:32:02,456 INFO  app.worker: task completed
+2026-08-31 14:32:03,789 WARNING app.cache: cache miss for key user_42
+2026-08-31 14:32:04,000 DEBUG app.db: executing query SELECT 1
