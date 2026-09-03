@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/faultlens/faultlens/internal/config"
+	"github.com/faultlens/faultlens/internal/model"
 )
 
 func TestRunBasicAnalysis(t *testing.T) {
@@ -189,5 +190,71 @@ func TestConfigAnomalyThresholdChangesBehavior(t *testing.T) {
 	}
 	if len(res2.Anomalies) != 0 {
 		t.Errorf("min_errors=30: got %d anomalies, want 0", len(res2.Anomalies))
+	}
+}
+
+// TestCustomRuleChangesDiagnosis verifies a user-defined rule really changes
+// the diagnosis outcome.
+func TestCustomRuleChangesDiagnosis(t *testing.T) {
+	logs := strings.Repeat("2026-08-31 14:32:01 ERROR no space left on device\n", 5)
+
+	// Without a custom rule, no built-in rule matches → insufficient.
+	res, err := Run(strings.NewReader(logs), Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Diagnosis.RootCause != "Insufficient evidence" {
+		t.Fatalf("without custom rule: %q, want Insufficient evidence", res.Diagnosis.RootCause)
+	}
+
+	// With a custom disk_full rule the same logs yield a real diagnosis.
+	cfg := config.Default()
+	cfg.CustomRules = []config.CustomRuleConfig{{
+		ID:              "disk_full",
+		RootCause:       "Disk full",
+		Severity:        "critical",
+		Keywords:        []string{"no space left on device"},
+		Recommendations: []string{"Check filesystem capacity"},
+	}}
+	res2, err := Run(strings.NewReader(logs), Options{Config: cfg})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res2.Diagnosis.RootCause != "Disk full" {
+		t.Fatalf("with custom rule: %q, want Disk full", res2.Diagnosis.RootCause)
+	}
+	if res2.Diagnosis.Severity != model.SeverityCritical {
+		t.Errorf("Severity = %q, want critical", res2.Diagnosis.Severity)
+	}
+	if len(res2.Diagnosis.Evidence) == 0 {
+		t.Error("diagnosis must carry evidence")
+	}
+	if len(res2.Diagnosis.Recommendations) == 0 {
+		t.Error("diagnosis must carry recommendations")
+	}
+	if len(res2.ConfigWarnings) != 0 {
+		t.Errorf("ConfigWarnings = %v, want none", res2.ConfigWarnings)
+	}
+}
+
+// TestInvalidCustomRuleDoesNotBreakBuiltins verifies an invalid rule is
+// skipped with a warning while valid rules still work.
+func TestInvalidCustomRuleDoesNotBreakBuiltins(t *testing.T) {
+	cfg := config.Default()
+	cfg.CustomRules = []config.CustomRuleConfig{
+		{ID: "", RootCause: "broken", Severity: "high"}, // invalid: no id, no keywords
+		{ID: "disk_full", RootCause: "Disk full", Severity: "critical", Keywords: []string{"no space left"}},
+	}
+	logs := strings.Repeat("2026-08-31 14:32:01 ERROR no space left on device\n", 5)
+
+	res, err := Run(strings.NewReader(logs), Options{Config: cfg})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Diagnosis.RootCause != "Disk full" {
+		t.Fatalf("RootCause = %q, want Disk full (valid rule must still work)", res.Diagnosis.RootCause)
+	}
+	if len(res.ConfigWarnings) != 1 {
+		t.Errorf("ConfigWarnings = %v, want 1 warning for the invalid rule", res.ConfigWarnings)
 	}
 }

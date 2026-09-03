@@ -53,6 +53,9 @@ type Result struct {
 	Timeline    []timeline.Bucket     `json:"timeline"`
 	Anomalies   []anomaly.Detection   `json:"anomalies"`
 	Diagnosis   *model.Diagnosis      `json:"diagnosis"`
+	// ConfigWarnings lists non-fatal configuration problems (e.g. invalid
+	// custom rules that were skipped).
+	ConfigWarnings []string `json:"config_warnings,omitempty"`
 }
 
 // Run executes the full pipeline over r and returns the aggregated result.
@@ -129,6 +132,9 @@ func Run(r io.Reader, opts Options) (*Result, error) {
 
 	eng := diagnosis.NewEngine()
 	rules.RegisterDefaultRules(eng)
+	if _, warnings := rules.RegisterCustomRules(eng, cfg.CustomRules); len(warnings) > 0 {
+		res.ConfigWarnings = warnings
+	}
 	res.Diagnosis = eng.Diagnose(&diagnosis.DiagnosisContext{
 		Events:      events,
 		ErrorGroups: res.ErrorGroups,
