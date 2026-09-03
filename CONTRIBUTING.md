@@ -7,6 +7,7 @@ testable, and maintainable** code over feature count.
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Reporting Bugs](#reporting-bugs)
 - [Good First Issues](#good-first-issues)
 - [How to Add a Parser](#how-to-add-a-parser)
 - [How to Add a Diagnosis Rule](#how-to-add-a-diagnosis-rule)
@@ -38,6 +39,13 @@ gofmt -l .
 go vet ./...
 go test ./...        # add -short to skip the 500MB performance check
 ```
+
+## Reporting Bugs
+
+Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md) and include
+`faultlens version`, your OS, the input format, expected vs actual behavior,
+and a minimal reproduction log (redact secrets). Feature requests, parser
+requests and rule requests have their own templates.
 
 ## Good First Issues
 

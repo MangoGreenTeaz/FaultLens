@@ -1,0 +1,31 @@
+name: Parser request
+description: Request support for a new log format
+title: "[Parser] "
+labels: [enhancement, parser]
+body:
+  - type: input
+    id: format
+    attributes:
+      label: Log format
+      description: The name of the log format (e.g. "Gunicorn", "CloudTrail")
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example lines
+      description: 3-5 real example log lines (redact secrets)
+    validations:
+      required: true
+  - type: textarea
+    id: fields
+    attributes:
+      label: Fields to extract
+      description: Which fields matter (timestamp, level, service, request id, …)
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - "I will implement it"
+        - "Just requesting"

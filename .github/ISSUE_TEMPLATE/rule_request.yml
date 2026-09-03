@@ -1,0 +1,36 @@
+name: Rule request
+description: Request a new diagnosis rule
+title: "[Rule] "
+labels: [enhancement, diagnosis]
+body:
+  - type: input
+    id: rootcause
+    attributes:
+      label: Root cause
+      description: What the rule should detect (e.g. "PostgreSQL replication lag")
+    validations:
+      required: true
+  - type: textarea
+    id: keywords
+    attributes:
+      label: Signals / keywords
+      description: The log patterns that indicate this problem
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example log excerpt
+      description: Real log lines where this rule should fire
+  - type: textarea
+    id: recommendations
+    attributes:
+      label: Suggested recommendations
+      description: Read-only, low-risk troubleshooting steps
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - "I will implement it"
+        - "Just requesting"

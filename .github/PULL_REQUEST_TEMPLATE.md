@@ -1,26 +1,30 @@
-## What changed?
+## Summary
 
-Describe your changes. For parsers/rules, summarize the format or rule added.
+A short description of what this PR does.
 
-## Why?
+## Changes
 
-What problem does this solve?
+- [ ] New parser / rule / fixture?
+- [ ] Bug fix?
+- [ ] Documentation?
+- [ ] Other?
 
-## How tested?
+Describe the changes.
 
-List the tests you ran, e.g.:
+## Testing
 
 - [ ] `go build ./...`
 - [ ] `go test ./...`
 - [ ] `go vet ./...`
-- [ ] `gofmt -l .`
-- [ ] New table-driven tests for the change
+- [ ] `gofmt -l .` (no output)
+- [ ] Added/updated tests
+- [ ] Updated documentation if needed
 
-## Breaking change?
+## Checklist
 
-- [ ] Yes
-- [ ] No
-
-## Related issue?
-
-Link any related issue(s), e.g. `Fixes #123`.
+- [ ] No breaking CLI changes
+- [ ] No unnecessary dependencies
+- [ ] No network dependency introduced
+- [ ] No telemetry introduced
+- [ ] Diagnosis rules are evidence-based (no hard-coded confidence,
+      no filename-based diagnosis)
