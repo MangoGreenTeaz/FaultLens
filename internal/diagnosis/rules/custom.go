@@ -54,7 +54,7 @@ func (r *CustomRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis 
 	}
 
 	if r.EnableDownstream {
-		fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx.Events)
+		fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx)
 		if fiveCount > 0 {
 			conf += diagnosis.ScoreDownstream
 			evidence = append(evidence,

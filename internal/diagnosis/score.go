@@ -65,28 +65,23 @@ func CountKeywordGroups(groups []grouping.ErrorGroup, keywords []string) (count 
 // fiveXXRe matches HTTP 5xx status codes in raw messages.
 var fiveXXRe = regexp.MustCompile(`\b5\d\d\b`)
 
-// Count5xxEvents scans error-level events for HTTP 5xx evidence: either the
-// Nginx "status" field or a 5xx number in the raw message.
-func Count5xxEvents(events []*model.LogEvent) (count int, first time.Time) {
-	for _, e := range events {
-		if e == nil {
-			continue
-		}
-		hit := false
-		if s, ok := e.Fields["status"]; ok && len(s) == 3 && s[0] == '5' {
-			hit = true
-		} else if fiveXXRe.MatchString(e.Message) {
-			hit = true
-		}
-		if !hit {
-			continue
-		}
-		count++
-		if first.IsZero() || e.Timestamp.Before(first) {
-			first = e.Timestamp
-		}
+// Is5xxEvent reports whether an event carries HTTP 5xx evidence: either the
+// Nginx/Apache "status" field or a 5xx number in the raw message.
+func Is5xxEvent(ev *model.LogEvent) bool {
+	if s, ok := ev.Fields["status"]; ok && len(s) == 3 && s[0] == '5' {
+		return true
 	}
-	return count, first
+	return fiveXXRe.MatchString(ev.Message)
+}
+
+// Count5xxEvents returns the precomputed HTTP 5xx statistics carried by the
+// context. They are computed once during streaming so rules never rescan
+// stored events.
+func Count5xxEvents(ctx *DiagnosisContext) (count int, first time.Time) {
+	if ctx == nil {
+		return 0, time.Time{}
+	}
+	return ctx.FiveXXCount, ctx.FiveXXFirst
 }
 
 // Evidence helpers keep rule code concise and consistent.

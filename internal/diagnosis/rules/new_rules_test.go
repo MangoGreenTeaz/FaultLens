@@ -56,7 +56,7 @@ func TestMQUnavailableRuleWithDownstream(t *testing.T) {
 			grp("rabbitmq connection failed", 12, mqFirst),
 			grp("Connection refused <IP>:<PORT>", 6, mqFirst),
 		},
-		Events: []*model.LogEvent{fiveXX(fiveFirst)},
+		FiveXXCount: 1, FiveXXFirst: fiveFirst,
 	}
 	d := NewMQUnavailableRule().Evaluate(ctx)
 	if d == nil {

@@ -7,6 +7,8 @@
 package diagnosis
 
 import (
+	"time"
+
 	"github.com/faultlens/faultlens/internal/anomaly"
 	"github.com/faultlens/faultlens/internal/grouping"
 	"github.com/faultlens/faultlens/internal/model"
@@ -22,14 +24,16 @@ const InsufficientEvidenceThreshold = 0.35
 // DiagnosisContext carries all pre-computed analysis results to the rules.
 // Rules must never re-parse raw logs; they consume these aggregates.
 type DiagnosisContext struct {
-	// Events holds the error-level log events (ERROR/FATAL).
-	Events []*model.LogEvent
 	// ErrorGroups are the normalized error clusters.
 	ErrorGroups []grouping.ErrorGroup
 	// Timeline is the per-minute bucket series.
 	Timeline []timeline.Bucket
 	// Anomalies are the buckets flagged by the anomaly detector.
 	Anomalies []anomaly.Detection
+	// FiveXXCount / FiveXXFirst are the precomputed HTTP 5xx statistics,
+	// computed once during streaming so rules never rescan stored events.
+	FiveXXCount int
+	FiveXXFirst time.Time
 }
 
 // DiagnosisRule evaluates one root-cause hypothesis against the context.

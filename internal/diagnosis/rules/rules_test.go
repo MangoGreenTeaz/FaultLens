@@ -41,7 +41,7 @@ func TestDatabaseRule(t *testing.T) {
 			grp("MySQL connection failed", 20, dbFirst),
 			grp("HTTP 500", 30, fiveFirst),
 		},
-		Events: []*model.LogEvent{fiveXX(fiveFirst)},
+		FiveXXCount: 1, FiveXXFirst: fiveFirst,
 	}
 	d := NewDatabaseRule().Evaluate(ctx)
 	if d == nil {
@@ -142,7 +142,7 @@ func TestHTTPRuleStaysBelowThreshold(t *testing.T) {
 	// Pure 5xx with anomaly confirmation must stay below the threshold so
 	// the engine reports "Insufficient evidence".
 	ctx := &diagnosis.DiagnosisContext{
-		Events:    []*model.LogEvent{fiveXX(base()), fiveXX(base().Add(time.Second))},
+		FiveXXCount: 2, FiveXXFirst: base(),
 		Anomalies: []anomaly.Detection{{Bucket: base(), Current: 50}},
 	}
 	d := NewHTTPRule().Evaluate(ctx)
@@ -159,7 +159,7 @@ func TestHTTPRuleDowngradesWithUpstream(t *testing.T) {
 		ErrorGroups: []grouping.ErrorGroup{
 			grp("MySQL connection failed", 50, base()),
 		},
-		Events: []*model.LogEvent{fiveXX(base())},
+		FiveXXCount: 1, FiveXXFirst: base(),
 	}
 	d := NewHTTPRule().Evaluate(ctx)
 	if d == nil {

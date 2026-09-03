@@ -25,7 +25,7 @@ var httpRecommendations = []string{
 
 // Evaluate implements diagnosis.DiagnosisRule.
 func (*HTTPRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
-	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx.Events)
+	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx)
 	if fiveCount == 0 {
 		return nil
 	}

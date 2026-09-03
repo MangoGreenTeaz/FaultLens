@@ -61,7 +61,7 @@ func (*DatabaseRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis 
 	}
 
 	// Downstream impact + temporal correlation: HTTP 5xx after the DB errors.
-	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx.Events)
+	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx)
 	if fiveCount > 0 {
 		conf += diagnosis.ScoreDownstream
 		evidence = append(evidence,

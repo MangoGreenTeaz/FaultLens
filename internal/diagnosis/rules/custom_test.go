@@ -96,7 +96,7 @@ func TestCustomRuleDownstreamAndTemporal(t *testing.T) {
 	fiveFirst := base().Add(5 * time.Second)
 	ctx := &diagnosis.DiagnosisContext{
 		ErrorGroups: []grouping.ErrorGroup{grp("rabbitmq connection failed", 10, dbFirst)},
-		Events:      []*model.LogEvent{fiveXX(fiveFirst)},
+		FiveXXCount: 1, FiveXXFirst: fiveFirst,
 	}
 	d := rule.Evaluate(ctx)
 	if d == nil {

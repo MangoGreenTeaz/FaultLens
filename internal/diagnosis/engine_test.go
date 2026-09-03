@@ -74,7 +74,7 @@ func TestEnginePrefersDatabaseOverHTTP(t *testing.T) {
 			grp("MySQL connection failed", 20, dbFirst),
 			grp("HTTP 500", 30, fiveFirst),
 		},
-		Events: []*model.LogEvent{fiveXX(fiveFirst)},
+		FiveXXCount: 1, FiveXXFirst: fiveFirst,
 	}
 	d := engineWithDefaultRules().Diagnose(ctx)
 	if d.RootCause != "Database unavailable" {
@@ -97,11 +97,7 @@ func TestEnginePrefersDatabaseOverHTTP(t *testing.T) {
 func TestEnginePureHTTP5xxIsInsufficient(t *testing.T) {
 	// No upstream cause: the engine must NOT guess MySQL/Redis/database.
 	ctx := &diagnosis.DiagnosisContext{
-		Events: []*model.LogEvent{
-			fiveXX(base()),
-			fiveXX(base().Add(time.Second)),
-			fiveXX(base().Add(2 * time.Second)),
-		},
+		FiveXXCount: 3, FiveXXFirst: base(),
 	}
 	d := engineWithDefaultRules().Diagnose(ctx)
 	if d.RootCause != "Insufficient evidence" {

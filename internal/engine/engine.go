@@ -62,12 +62,13 @@ type Result struct {
 
 // analyzer accumulates events from one or more inputs into a single result.
 type analyzer struct {
-	opts     Options
-	grouper  *grouping.Grouper
-	tl       *timeline.Analyzer
-	events   []*model.LogEvent
-	sum      Summary
-	detected string // first auto-detected format across inputs
+	opts        Options
+	grouper     *grouping.Grouper
+	tl          *timeline.Analyzer
+	sum         Summary
+	fiveXXCount int
+	fiveXXFirst time.Time
+	detected    string // first auto-detected format across inputs
 }
 
 // newAnalyzer creates an empty analyzer for the given options.
@@ -171,7 +172,14 @@ func (a *analyzer) consumeEvents(evs []*model.LogEvent) {
 			}
 		}
 		if ev.Level == model.LevelError || ev.Level == model.LevelFatal {
-			a.events = append(a.events, ev)
+			// HTTP 5xx is the only error detail the diagnosis rules need;
+			// it is aggregated here so no full event slice is retained.
+			if diagnosis.Is5xxEvent(ev) {
+				a.fiveXXCount++
+				if a.fiveXXFirst.IsZero() {
+					a.fiveXXFirst = ev.Timestamp
+				}
+			}
 		}
 		a.grouper.Add(ev)
 		a.tl.Add(ev)
@@ -203,10 +211,11 @@ func (a *analyzer) result() *Result {
 		res.ConfigWarnings = warnings
 	}
 	res.Diagnosis = eng.Diagnose(&diagnosis.DiagnosisContext{
-		Events:      a.events,
 		ErrorGroups: res.ErrorGroups,
 		Timeline:    res.Timeline,
 		Anomalies:   res.Anomalies,
+		FiveXXCount: a.fiveXXCount,
+		FiveXXFirst: a.fiveXXFirst,
 	})
 	return res
 }

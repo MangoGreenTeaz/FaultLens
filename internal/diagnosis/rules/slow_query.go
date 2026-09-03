@@ -45,7 +45,7 @@ func (*SlowQueryRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis
 			diagnosis.NewErrorPatternEvidence(first, "large volume of slow queries", diagnosis.ScoreSupporting))
 	}
 
-	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx.Events)
+	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx)
 	if fiveCount > 0 {
 		conf += diagnosis.ScoreDownstream
 		evidence = append(evidence,

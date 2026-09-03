@@ -48,7 +48,7 @@ func (*ConnectionPoolExhaustedRule) Evaluate(ctx *diagnosis.DiagnosisContext) *m
 			diagnosis.NewErrorPatternEvidence(first, "large volume of pool errors", diagnosis.ScoreSupporting))
 	}
 
-	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx.Events)
+	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx)
 	if fiveCount > 0 {
 		conf += diagnosis.ScoreDownstream
 		evidence = append(evidence,

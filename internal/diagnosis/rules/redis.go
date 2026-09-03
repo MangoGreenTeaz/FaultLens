@@ -53,7 +53,7 @@ func (*RedisRule) Evaluate(ctx *diagnosis.DiagnosisContext) *model.Diagnosis {
 			diagnosis.NewErrorPatternEvidence(weakFirst, "connection failures detected", diagnosis.ScoreSupporting))
 	}
 
-	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx.Events)
+	fiveCount, fiveFirst := diagnosis.Count5xxEvents(ctx)
 	if fiveCount > 0 {
 		conf += diagnosis.ScoreDownstream
 		evidence = append(evidence,
