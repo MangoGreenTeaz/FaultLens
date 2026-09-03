@@ -187,6 +187,7 @@ faultlens <file>          # 完整分析报告(默认)
 faultlens errors <file>   # 错误聚类
 faultlens timeline <file> # 按分钟时间线 + 异常
 faultlens incident <file> # Root Cause 诊断
+faultlens diff a.json b.json # 对比两份 JSON 报告
 faultlens version         # 打印版本号
 ```
 
@@ -202,6 +203,8 @@ faultlens version         # 打印版本号
 - **terminal** — 人类可读的报告(默认)。
 - **json** — 供工具与 CI 消费的稳定 schema:
   `{ "summary", "error_groups", "timeline", "anomalies", "diagnosis" }`。
+- **html** — 单文件、完全离线的报告,含内联 SVG 错误时间线;适合 CI
+  artifact 与事故分享。
 - **markdown** — 表格与标题,适合 GitHub Issue、Postmortem、PR 评论。
 
 ## 🤖 GitHub Actions

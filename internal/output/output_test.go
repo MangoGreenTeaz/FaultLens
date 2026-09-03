@@ -32,6 +32,9 @@ func sampleResult() *engine.Result {
 				Count:     4381,
 				FirstSeen: base,
 				LastSeen:  base.Add(time.Hour),
+				Examples: []model.LogEvent{
+					{Source: "app.log", Level: model.LevelError, Raw: "2026-08-31 14:32:01 ERROR Connection refused 10.0.0.1:3306"},
+				},
 			},
 		},
 		Timeline: []timeline.Bucket{
@@ -41,6 +44,7 @@ func sampleResult() *engine.Result {
 		Anomalies: []anomaly.Detection{
 			{Bucket: base.Add(time.Minute), BaselineMean: 12.4, Current: 942, Increase: 75.9},
 		},
+		ConfigWarnings: []string{"skipped custom rule \"broken\": id must not be empty"},
 		Diagnosis: &model.Diagnosis{
 			RootCause:  "Database unavailable",
 			Confidence: 0.91,
@@ -188,6 +192,9 @@ func TestRenderHTML(t *testing.T) {
 		"<!DOCTYPE html>", "FaultLens Report", "Summary", "Diagnosis", "Error Groups",
 		"Database unavailable", "182391", "Connection refused &lt;IP&gt;:&lt;PORT&gt;",
 		"Evidence", "Check MySQL availability",
+		// V2 Phase 7 enhancements
+		"Timeline", "<svg", "Anomalies", "75.9x", "Source Files", "app.log",
+		"Configuration Warnings", "skipped custom rule",
 	} {
 		if !strings.Contains(s, want) {
 			t.Errorf("HTML report missing %q", want)

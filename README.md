@@ -196,6 +196,7 @@ faultlens <file>          # full analysis report (default)
 faultlens errors <file>   # error clustering
 faultlens timeline <file> # per-minute timeline + anomalies
 faultlens incident <file> # root-cause diagnosis
+faultlens diff a.json b.json # compare two JSON reports
 faultlens version         # print version
 ```
 
@@ -211,6 +212,8 @@ faultlens version         # print version
 - **terminal** — human-readable report (default).
 - **json** — stable schema for tooling and CI:
   `{ "summary", "error_groups", "timeline", "anomalies", "diagnosis" }`.
+- **html** — single-file, fully offline report with an inline SVG error
+  timeline; suitable for CI artifacts and incident sharing.
 - **markdown** — tables and headings, ready for GitHub issues, postmortems and
   PR comments.
 
