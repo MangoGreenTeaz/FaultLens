@@ -399,9 +399,9 @@ func evidenceBadgeClass(t string) string {
 	}
 }
 
-// timelineSVG renders the per-minute error counts as an inline SVG bar chart.
-// Buckets flagged by the anomaly detector are drawn in red. The chart is
-// capped at maxTimelineBars buckets to stay readable.
+// timelineSVG renders the per-minute error counts as an area chart (fill +
+// line), with anomalous buckets marked in red — a Datadog/Grafana-style
+// metric view. The chart is capped at maxTimelineBars buckets.
 func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML {
 	if len(tl) == 0 {
 		return ""
@@ -414,8 +414,8 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 
 	const (
 		width  = 880
-		plotH  = 110
-		labelH = 20
+		plotH  = 130
+		labelH = 22
 	)
 	height := plotH + labelH
 
@@ -430,47 +430,74 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 		anomAt[a.Bucket.Unix()] = true
 	}
 
+	n := len(buckets)
+	barW := float64(width) / float64(n)
+
+	type pt struct{ x, y float64 }
+	pts := make([]pt, n)
+	for i, bucket := range buckets {
+		x := (float64(i) + 0.5) * barW
+		h := float64(bucket.Errors) / float64(maxErr) * (plotH - 12)
+		pts[i] = pt{x: x, y: plotH - h}
+	}
+	base := float64(plotH)
+
 	var b strings.Builder
 	fmt.Fprintf(&b, `<svg viewBox="0 0 %d %d" role="img" aria-label="Error timeline" style="width:100%%;height:auto">`, width, height)
 
-	// Grid lines + baseline (subtle on the dark background).
-	for _, gy := range []int{0, plotH / 4, plotH / 2, plotH * 3 / 4, plotH} {
-		op := "0.06"
-		if gy == plotH {
+	// Horizontal grid lines with y-axis labels (max / half / zero).
+	for _, frac := range []float64{1, 0.5, 0} {
+		y := plotH - frac*(plotH-12)
+		op := "0.05"
+		if frac == 0 {
 			op = "0.18"
 		}
-		fmt.Fprintf(&b, `<line x1="0" y1="%d" x2="%d" y2="%d" stroke="#ffffff" stroke-opacity="%s"/>`, gy, width, gy, op)
+		fmt.Fprintf(&b, `<line x1="0" y1="%.1f" x2="%d" y2="%.1f" stroke="#ffffff" stroke-opacity="%s"/>`, y, width, y, op)
+		val := int(float64(maxErr)*frac + 0.5)
+		fmt.Fprintf(&b, `<text x="4" y="%.1f" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">%d</text>`, y-3, val)
 	}
 
-	n := len(buckets)
-	barW := float64(width) / float64(n)
-	gap := barW * 0.22
-	if gap > 2.5 {
-		gap = 2.5
-	}
-	for i, bucket := range buckets {
-		x := float64(i)*barW + gap/2
-		h := float64(bucket.Errors) / float64(maxErr) * (plotH - 4)
-		if h < 1 {
-			h = 1
+	// Area fill under the line (solid translucent primary, no gradient).
+	var area strings.Builder
+	area.WriteString("M")
+	for i, p := range pts {
+		fmt.Fprintf(&area, " %.1f,%.1f", p.x, p.y)
+		if i < n-1 {
+			area.WriteString(" L")
 		}
-		y := plotH - h
-		color := "#6366F1"
-		opacity := "0.9"
-		if anomAt[bucket.Start.Unix()] {
-			color = "#EF4444"
-			opacity = "1"
-		}
-		fmt.Fprintf(&b, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="1.5" fill="%s" fill-opacity="%s"/>`,
-			x, y, barW-gap, h, color, opacity)
 	}
+	fmt.Fprintf(&area, " L%.1f,%.1f L%.1f,%.1f Z", pts[n-1].x, base, pts[0].x, base)
+	fmt.Fprintf(&b, `<path d="%s" fill="#6366F1" fill-opacity="0.16"/>`, area.String())
+
+	// Line connecting the points.
+	var line strings.Builder
+	line.WriteString("M")
+	for i, p := range pts {
+		fmt.Fprintf(&line, " %.1f,%.1f", p.x, p.y)
+		if i < n-1 {
+			line.WriteString(" L")
+		}
+	}
+	fmt.Fprintf(&b, `<path d="%s" fill="none" stroke="#6366F1" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`, line.String())
+
+	// Anomalous buckets: red markers on the line.
+	for i, p := range pts {
+		if anomAt[buckets[i].Start.Unix()] {
+			fmt.Fprintf(&b, `<circle cx="%.1f" cy="%.1f" r="3.5" fill="#EF4444"/>`, p.x, p.y)
+		}
+	}
+
+	// Time labels: first, middle, last.
 	for _, idx := range []int{0, n / 2, n - 1} {
-		anchor := "start"
+		anchor := "middle"
+		if idx == 0 {
+			anchor = "start"
+		}
 		if idx == n-1 {
 			anchor = "end"
 		}
 		fmt.Fprintf(&b, `<text x="%.1f" y="%d" font-size="10" fill="#6B7280" text-anchor="%s" font-family="ui-monospace,Consolas,monospace">%s</text>`,
-			float64(idx)*barW+barW/2, height-5, anchor, buckets[idx].Start.Format("15:04"))
+			pts[idx].x, height-5, anchor, buckets[idx].Start.Format("15:04"))
 	}
 	b.WriteString(`</svg>`)
 	return template.HTML(b.String())
