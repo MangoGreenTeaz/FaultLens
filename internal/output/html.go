@@ -22,13 +22,12 @@ type htmlData struct {
 	TimelineSVG   template.HTML
 	SourceFiles   []string
 	ConfidencePct int
-	HasTimeline   bool
 }
 
-// renderHTMLTemplate is a fully self-contained report: inline CSS only, no
-// external resources, so it works offline and as a CI artifact. The design is
-// an "incident console": semantic severity colors, careful hierarchy, and a
-// light/dark theme that follows the OS.
+// renderHTMLTemplate is a fully self-contained offline report (no CDN, no
+// external JS). The design follows a modern developer-tool console aesthetic:
+// dark-first, high information density, semantic severity colors, no
+// gradients.
 const renderHTMLTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,206 +36,193 @@ const renderHTMLTemplate = `<!DOCTYPE html>
 <title>FaultLens Report</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f4f5f7;
-    --surface: #ffffff;
-    --surface-2: #fafbfc;
-    --border: #e2e4e8;
-    --text: #1a1d21;
-    --muted: #66707a;
-    --faint: #9aa1a9;
-    --accent: #0b6bcb;
-    --accent-soft: #e5f1fb;
-    --green: #1a7f37;
-    --critical: #cf222e;
-    --critical-soft: #ffebe9;
-    --high: #bc4c00;
-    --high-soft: #fff1e5;
-    --medium: #9a6700;
-    --medium-soft: #fff8c5;
-    --mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, Menlo, monospace;
+    color-scheme: dark;
+    --bg: #0B0F19;
+    --surface: #151B2B;
+    --surface-2: #1B2334;
+    --surface-3: #202A3E;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #F9FAFB;
+    --muted: #9CA3AF;
+    --faint: #6B7280;
+    --primary: #6366F1;
+    --primary-soft: rgba(99,102,241,0.14);
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --danger-soft: rgba(239,68,68,0.14);
+    --warning-soft: rgba(245,158,11,0.14);
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, Menlo, monospace;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface-2: #1c2129;
-      --border: #2b313a;
-      --text: #e6edf3;
-      --muted: #9aa4b0;
-      --faint: #6e7681;
-      --accent: #4d9fff;
-      --accent-soft: #152c44;
-      --green: #3fb950;
-      --critical: #f85149;
-      --critical-soft: #2d1517;
-      --high: #ffa657;
-      --high-soft: #2d1a0e;
-      --medium: #d29922;
-      --medium-soft: #2c2208;
-    }
-  }
-
   * { box-sizing: border-box; margin: 0; }
+  html { background: var(--bg); }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
-                 Arial, sans-serif;
-    background: var(--bg);
+    font-family: var(--sans);
+    background:
+      radial-gradient(1200px 500px at 80% -10%, rgba(99,102,241,0.08), transparent 60%),
+      var(--bg);
     color: var(--text);
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
-    padding: 0 20px 60px;
+    padding: 0 24px 64px;
   }
-  .wrap { max-width: 940px; margin: 0 auto; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
 
   /* ---- header ---- */
   .header {
-    padding: 34px 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 22px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
   }
   .logo {
-    width: 42px; height: 42px; border-radius: 11px;
-    background: linear-gradient(135deg, var(--accent), #0a4a8a);
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--primary);
     display: grid; place-items: center;
-    color: #fff; font-weight: 800; font-size: 15px; letter-spacing: .5px;
-    box-shadow: 0 2px 8px rgba(11,107,203,.25);
-    flex: none;
+    font-family: var(--mono); font-weight: 700; font-size: 12px;
+    color: #fff; letter-spacing: .5px; flex: none;
   }
-  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -.2px; }
-  .header .sub { color: var(--muted); font-size: 13px; }
-  .header .tag { margin-left: auto; font-size: 11px; color: var(--faint);
-    font-variant-numeric: tabular-nums; }
+  .header h1 { font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
+  .header .sub { color: var(--faint); font-size: 12px; }
+  .header .crumb { display: flex; align-items: baseline; gap: 6px; }
+  .header .crumb b { color: var(--muted); font-weight: 600; }
+  .header .tag { margin-left: auto; font-family: var(--mono); font-size: 11px;
+    color: var(--faint); }
 
-  /* ---- sections ---- */
-  .card {
+  /* ---- section titles ---- */
+  h2 {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--faint);
+    margin: 26px 0 8px;
+  }
+
+  /* ---- metric cards ---- */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; }
+  .metric {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 18px 20px;
-    margin-top: 14px;
-  }
-  h2 {
-    font-size: 12px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1.1px; color: var(--faint);
-    margin: 28px 0 -2px; display: flex; align-items: center; gap: 8px;
-  }
-  h2::after { content: ""; flex: 1; height: 1px; background: var(--border); }
-
-  /* ---- summary stats ---- */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; }
-  .stat {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
     padding: 14px 16px 12px;
+    transition: border-color .15s ease;
   }
-  .stat .num { font-size: 26px; font-weight: 750; letter-spacing: -.5px;
-    font-variant-numeric: tabular-nums; line-height: 1.1; }
-  .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
-    color: var(--muted); margin-top: 2px; }
-  .stat.err .num { color: var(--critical); }
-  .stat.warn .num { color: var(--medium); }
-  .stat.fatal .num { color: var(--critical); }
-  .meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px;
-    font-size: 13px; }
-  .meta dt { color: var(--muted); }
+  .metric:hover { border-color: var(--border-strong); }
+  .metric .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .9px;
+    color: var(--faint); }
+  .metric .num { font-size: 26px; font-weight: 700; letter-spacing: -.5px;
+    margin-top: 4px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .metric .dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+    margin-right: 6px; vertical-align: 2px; }
+  .dot-critical { background: var(--danger); }
+  .dot-warning { background: var(--warning); }
+  .dot-success { background: var(--success); }
+  .dot-primary { background: var(--primary); }
+
+  .meta { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px;
+    font-size: 12.5px; margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid var(--border); }
+  .meta dt { color: var(--faint); }
   .meta dd { color: var(--text); word-break: break-all; }
-  .meta dd code { font-family: var(--mono); font-size: 12px; }
+  .meta dd code { font-family: var(--mono); font-size: 11.5px; }
 
   /* ---- timeline ---- */
-  .legend { font-size: 12px; color: var(--muted); margin: 8px 0 0;
-    display: flex; gap: 16px; flex-wrap: wrap; }
-  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
-    margin-right: 5px; vertical-align: -1px; }
-  .legend .normal { background: var(--accent); }
-  .legend .anomaly { background: var(--critical); }
+  .panel { background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; }
+  .legend { display: flex; gap: 16px; margin-top: 10px;
+    font-size: 11.5px; color: var(--muted); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+    margin-right: 6px; vertical-align: -1px; }
+  .legend .normal { background: var(--primary); }
+  .legend .anomaly { background: var(--danger); }
 
   /* ---- diagnosis ---- */
-  .dx { border-left: 4px solid var(--muted); padding: 18px 20px; }
-  .sev-critical { border-color: var(--critical); }
-  .sev-high { border-color: var(--high); }
-  .sev-medium { border-color: var(--medium); }
-  .sev-low { border-color: var(--green); }
+  .dx { border-left: 3px solid var(--border-strong); border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border); border-left-width: 3px;
+    padding: 18px 20px; }
+  .sev-critical { border-left-color: var(--danger); }
+  .sev-high { border-left-color: var(--warning); }
+  .sev-medium { border-left-color: var(--warning); }
+  .sev-low { border-left-color: var(--success); }
 
   .dx .rc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
-    color: var(--muted); }
-  .dx h3 { font-size: 22px; font-weight: 750; letter-spacing: -.4px; margin: 2px 0 8px; }
-  .pill {
-    display: inline-block; font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .8px;
-    padding: 3px 10px; border-radius: 999px;
-  }
-  .pill-critical { background: var(--critical-soft); color: var(--critical); }
-  .pill-high { background: var(--high-soft); color: var(--high); }
-  .pill-medium { background: var(--medium-soft); color: var(--medium); }
-  .pill-low { background: var(--accent-soft); color: var(--accent); }
-  .pill-insufficient { background: var(--medium-soft); color: var(--medium); }
+    color: var(--faint); }
+  .dx h3 { font-size: 20px; font-weight: 700; letter-spacing: -.3px; margin: 3px 0 10px; }
+  .pill { display: inline-block; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .9px; padding: 3px 10px;
+    border-radius: 6px; }
+  .pill-critical { background: var(--danger-soft); color: var(--danger); }
+  .pill-high { background: var(--warning-soft); color: var(--warning); }
+  .pill-medium { background: var(--warning-soft); color: var(--warning); }
+  .pill-low { background: rgba(34,197,94,.14); color: var(--success); }
+  .pill-insufficient { background: var(--warning-soft); color: var(--warning); }
 
-  .conf { margin: 12px 0 4px; }
-  .conf .conf-label { font-size: 12px; color: var(--muted); }
-  .conf .conf-num { float: right; font-size: 12px; font-weight: 650;
+  .conf { margin: 14px 0 2px; }
+  .conf .row { display: flex; justify-content: space-between; font-size: 12px; }
+  .conf .conf-label { color: var(--muted); }
+  .conf .conf-num { color: var(--text); font-weight: 650;
     font-variant-numeric: tabular-nums; }
-  .conf .bar { height: 7px; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
-    margin-top: 4px; }
-  .conf .bar > span { display: block; height: 100%;
-    background: linear-gradient(90deg, var(--green), var(--accent));
-    border-radius: 999px; }
-  .sev-critical .bar > span { background: linear-gradient(90deg,#d16a6e,var(--critical)); }
-  .sev-high .bar > span { background: linear-gradient(90deg,#d99b68,var(--high)); }
+  .conf .bar { height: 5px; background: var(--surface-3); border-radius: 999px;
+    overflow: hidden; margin-top: 5px; }
+  .conf .bar > span { display: block; height: 100%; border-radius: 999px;
+    background: var(--primary); }
+  .sev-critical .bar > span { background: var(--danger); }
+  .sev-high .bar > span { background: var(--warning); }
 
-  .dx h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .9px;
-    color: var(--muted); margin: 16px 0 6px; }
-  .ev-list { list-style: none; padding: 0; display: grid; gap: 6px; }
+  .dx h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--faint); margin: 18px 0 8px; }
+
+  .ev-list { list-style: none; padding: 0; display: grid; gap: 5px; }
   .ev {
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 11px; font-size: 13px;
-    display: flex; gap: 10px; align-items: baseline;
+    display: flex; gap: 12px; align-items: baseline;
+    padding: 8px 12px; border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    font-size: 12.5px;
   }
-  .ev time { color: var(--faint); font-family: var(--mono); font-size: 12px;
+  .ev:hover { border-color: var(--border-strong); }
+  .ev time { color: var(--faint); font-family: var(--mono); font-size: 11.5px;
     flex: none; font-variant-numeric: tabular-nums; }
-  .badge { font-size: 10px; font-weight: 700; letter-spacing: .4px;
-    padding: 1px 7px; border-radius: 5px; flex: none; text-transform: uppercase; }
-  .b-error { background: var(--critical-soft); color: var(--critical); }
-  .b-anomaly { background: var(--high-soft); color: var(--high); }
-  .b-downstream { background: var(--accent-soft); color: var(--accent); }
-  .b-temporal { background: var(--medium-soft); color: var(--medium); }
-  .b-stack { background: var(--surface); color: var(--muted);
-    border: 1px solid var(--border); }
+  .badge { font-size: 9.5px; font-weight: 700; letter-spacing: .5px;
+    padding: 1px 7px; border-radius: 4px; flex: none; text-transform: uppercase;
+    font-family: var(--mono); }
+  .b-error { background: var(--danger-soft); color: var(--danger); }
+  .b-anomaly { background: var(--warning-soft); color: var(--warning); }
+  .b-downstream { background: var(--primary-soft); color: var(--primary); }
+  .b-temporal { background: var(--warning-soft); color: var(--warning); }
+  .b-stack { background: var(--surface-3); color: var(--muted); }
   .ev p { color: var(--text); }
 
-  ol.recs { padding-left: 0; list-style: none; display: grid; gap: 6px; }
+  ol.recs { list-style: none; padding: 0; display: grid; gap: 6px; }
   .recs li { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
-  .recs .n { font-family: var(--mono); font-size: 12px; font-weight: 700;
-    color: var(--accent); flex: none; }
+  .recs .n { font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+    color: var(--primary); flex: none; }
 
-  /* ---- tables ---- */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { font-size: 11px; text-transform: uppercase; letter-spacing: .7px;
-    color: var(--muted); text-align: left; padding: 6px 10px;
-    border-bottom: 1px solid var(--border); }
-  td { padding: 8px 10px; border-bottom: 1px solid var(--border);
-    vertical-align: top; }
+  /* ---- tables (no vertical lines, compact, hover rows) ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th { font-size: 10px; text-transform: uppercase; letter-spacing: .8px;
+    color: var(--faint); text-align: left; padding: 6px 10px;
+    border-bottom: 1px solid var(--border); font-weight: 600; }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border);
+    vertical-align: middle; }
+  tbody tr { transition: background .12s ease; }
+  tbody tr:hover { background: var(--surface-2); }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--surface-2); }
-  td code, .msg { font-family: var(--mono); font-size: 12px; }
+  tbody tr:hover td:first-child { border-radius: 8px 0 0 8px; }
+  tbody tr:hover td:last-child { border-radius: 0 8px 8px 0; }
+  td code, .msg { font-family: var(--mono); font-size: 11.5px; }
   .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-  .rank { color: var(--faint); width: 1%; white-space: nowrap; }
+  .rank { color: var(--faint); width: 1%; white-space: nowrap; font-family: var(--mono); font-size: 11px; }
 
-  .files { list-style: none; padding: 0; display: grid; gap: 4px; }
+  .files { list-style: none; padding: 0; display: grid; gap: 5px; }
   .files code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-  .empty { color: var(--muted); font-size: 13px; padding: 6px 2px; }
-  ul.warns { margin: 0; padding-left: 18px; font-size: 13px; color: var(--high); }
+  .empty { color: var(--muted); font-size: 13px; padding: 4px 2px; }
+  ul.warns { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--warning); }
 
-  @media (max-width: 620px) {
-    .header { flex-wrap: wrap; }
-    .header .tag { margin-left: 0; width: 100%; }
-  }
+  @media (max-width: 640px) { .header .tag { display: none; } }
   @media print {
-    body { background: #fff; color: #000; padding: 0; }
-    .card { break-inside: avoid; }
+    body { background: #fff; color: #000; }
+    .panel, .metric, .dx, .ev { background: #fff; }
   }
 </style>
 </head>
@@ -244,49 +230,48 @@ const renderHTMLTemplate = `<!DOCTYPE html>
 <div class="wrap">
   <header class="header">
     <div class="logo">FL</div>
-    <div>
-      <h1>FaultLens Report</h1>
-      <div class="sub">See beyond the error.</div>
+    <div class="crumb">
+      <h1>FaultLens</h1>
+      <span style="color:var(--faint)">/</span>
+      <b>{{.Summary.Source}}</b>
     </div>
-    <div class="tag">{{.Summary.Format}} · {{.Summary.Source}}</div>
+    <div class="tag">{{.Summary.Format}}</div>
   </header>
 
   <!-- Summary -->
-  <section class="card">
-    <div class="stats">
-      <div class="stat"><div class="num">{{.Summary.Events}}</div><div class="lbl">Events</div></div>
-      <div class="stat err"><div class="num">{{.Summary.Errors}}</div><div class="lbl">Errors</div></div>
-      <div class="stat warn"><div class="num">{{.Summary.Warnings}}</div><div class="lbl">Warnings</div></div>
-      <div class="stat fatal"><div class="num">{{.Summary.Fatal}}</div><div class="lbl">Fatal</div></div>
-    </div>
-    <dl class="meta" style="margin-top:14px">
-      {{if not .Summary.FirstEvent.IsZero}}
-      <dt>Window</dt><dd>{{.Summary.FirstEvent.Format "2006-01-02 15:04:05"}} → {{.Summary.LastEvent.Format "2006-01-02 15:04:05"}}</dd>
-      {{end}}
-      <dt>Format</dt><dd>{{.Summary.Format}}</dd>
-      <dt>Source</dt><dd><code>{{.Summary.Source}}</code></dd>
-      {{if gt .Summary.ParsingWarnings 0}}
-      <dt>⚠ Warnings</dt><dd>{{.Summary.ParsingWarnings}} lines could not be parsed</dd>
-      {{end}}
-    </dl>
-  </section>
+  <div class="metrics">
+    <div class="metric"><div class="lbl">Events</div><div class="num">{{.Summary.Events}}</div></div>
+    <div class="metric"><div class="lbl"><span class="dot dot-critical"></span>Errors</div><div class="num">{{.Summary.Errors}}</div></div>
+    <div class="metric"><div class="lbl"><span class="dot dot-warning"></span>Warnings</div><div class="num">{{.Summary.Warnings}}</div></div>
+    <div class="metric"><div class="lbl"><span class="dot dot-critical"></span>Fatal</div><div class="num">{{.Summary.Fatal}}</div></div>
+  </div>
+  <dl class="meta">
+    {{if not .Summary.FirstEvent.IsZero}}
+    <dt>Window</dt><dd>{{.Summary.FirstEvent.Format "2006-01-02 15:04:05"}} → {{.Summary.LastEvent.Format "2006-01-02 15:04:05"}}</dd>
+    {{end}}
+    <dt>Format</dt><dd>{{.Summary.Format}}</dd>
+    <dt>Source</dt><dd><code>{{.Summary.Source}}</code></dd>
+    {{if gt .Summary.ParsingWarnings 0}}
+    <dt>Warnings</dt><dd>{{.Summary.ParsingWarnings}} lines could not be parsed</dd>
+    {{end}}
+  </dl>
 
   <!-- Timeline -->
   {{if .TimelineSVG}}
   <h2>Error Timeline</h2>
-  <section class="card">
+  <div class="panel">
     {{.TimelineSVG}}
     <div class="legend">
-      <span><i class="normal"></i>normal bucket</span>
+      <span><i class="normal"></i>normal</span>
       <span><i class="anomaly"></i>anomaly</span>
     </div>
-  </section>
+  </div>
   {{end}}
 
   <!-- Anomalies -->
   {{if .Anomalies}}
   <h2>Anomalies</h2>
-  <section class="card">
+  <div class="panel">
     <table>
       <thead><tr><th>Time</th><th>Baseline</th><th>Errors</th><th>Increase</th></tr></thead>
       <tbody>
@@ -298,20 +283,19 @@ const renderHTMLTemplate = `<!DOCTYPE html>
         {{end}}
       </tbody>
     </table>
-  </section>
+  </div>
   {{end}}
 
   <!-- Diagnosis -->
   <h2>Diagnosis</h2>
-  <section class="card dx sev-{{.Diagnosis.Severity}}">
+  <section class="dx sev-{{.Diagnosis.Severity}}">
     <div class="rc-label">Root Cause</div>
     <h3>{{.Diagnosis.RootCause}}</h3>
     <span class="pill pill-{{.Diagnosis.Severity}}">{{.Diagnosis.Severity}}</span>
 
     {{if ne .Diagnosis.RootCause "Insufficient evidence"}}
     <div class="conf">
-      <span class="conf-label">Confidence</span>
-      <span class="conf-num">{{.ConfidencePct}}%</span>
+      <div class="row"><span class="conf-label">Confidence</span><span class="conf-num">{{.ConfidencePct}}%</span></div>
       <div class="bar"><span style="width:{{.ConfidencePct}}%"></span></div>
     </div>
     {{end}}
@@ -341,7 +325,7 @@ const renderHTMLTemplate = `<!DOCTYPE html>
 
   <!-- Error groups -->
   <h2>Error Groups</h2>
-  <section class="card">
+  <div class="panel">
     {{if .ErrorGroups}}
     <table>
       <thead><tr><th class="rank">#</th><th>Error</th><th class="count">Occurrences</th><th>First seen</th></tr></thead>
@@ -355,22 +339,22 @@ const renderHTMLTemplate = `<!DOCTYPE html>
       </tbody>
     </table>
     {{else}}<div class="empty">No error groups</div>{{end}}
-  </section>
+  </div>
 
   <!-- Source files -->
   {{if .SourceFiles}}
   <h2>Source Files</h2>
-  <section class="card">
+  <div class="panel">
     <ul class="files">{{range .SourceFiles}}<li><code>{{.}}</code></li>{{end}}</ul>
-  </section>
+  </div>
   {{end}}
 
   <!-- Config warnings -->
   {{if .ConfigWarnings}}
   <h2>Configuration Warnings</h2>
-  <section class="card">
+  <div class="panel">
     <ul class="warns">{{range .ConfigWarnings}}<li>{{.}}</li>{{end}}</ul>
-  </section>
+  </div>
   {{end}}
 </div>
 </body>
@@ -430,8 +414,8 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 
 	const (
 		width  = 880
-		plotH  = 120
-		labelH = 22
+		plotH  = 110
+		labelH = 20
 	)
 	height := plotH + labelH
 
@@ -449,18 +433,17 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 	var b strings.Builder
 	fmt.Fprintf(&b, `<svg viewBox="0 0 %d %d" role="img" aria-label="Error timeline" style="width:100%%;height:auto">`, width, height)
 
-	// Horizontal grid lines + baseline.
+	// Grid lines + baseline (subtle on the dark background).
 	for _, gy := range []int{0, plotH / 4, plotH / 2, plotH * 3 / 4, plotH} {
-		op := "0.05"
+		op := "0.06"
 		if gy == plotH {
-			op = "0.25"
+			op = "0.18"
 		}
-		fmt.Fprintf(&b, `<line x1="0" y1="%d" x2="%d" y2="%d" stroke="currentColor" stroke-opacity="%s"/>`, gy, width, gy, op)
+		fmt.Fprintf(&b, `<line x1="0" y1="%d" x2="%d" y2="%d" stroke="#ffffff" stroke-opacity="%s"/>`, gy, width, gy, op)
 	}
 
 	n := len(buckets)
 	barW := float64(width) / float64(n)
-	// Cap the bar inset for very wide charts.
 	gap := barW * 0.22
 	if gap > 2.5 {
 		gap = 2.5
@@ -472,23 +455,22 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 			h = 1
 		}
 		y := plotH - h
-		color := "#0b6bcb"
-		opacity := "0.85"
+		color := "#6366F1"
+		opacity := "0.9"
 		if anomAt[bucket.Start.Unix()] {
-			color = "#cf222e"
+			color = "#EF4444"
 			opacity = "1"
 		}
-		fmt.Fprintf(&b, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="1" fill="%s" fill-opacity="%s"/>`,
+		fmt.Fprintf(&b, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="1.5" fill="%s" fill-opacity="%s"/>`,
 			x, y, barW-gap, h, color, opacity)
 	}
-	// Time labels: first, middle, last.
 	for _, idx := range []int{0, n / 2, n - 1} {
 		anchor := "start"
 		if idx == n-1 {
 			anchor = "end"
 		}
-		fmt.Fprintf(&b, `<text x="%.1f" y="%d" font-size="10" fill="currentColor" fill-opacity="0.55" text-anchor="%s" font-family="ui-monospace,Consolas,monospace">%s</text>`,
-			float64(idx)*barW+barW/2, height-6, anchor, buckets[idx].Start.Format("15:04"))
+		fmt.Fprintf(&b, `<text x="%.1f" y="%d" font-size="10" fill="#6B7280" text-anchor="%s" font-family="ui-monospace,Consolas,monospace">%s</text>`,
+			float64(idx)*barW+barW/2, height-5, anchor, buckets[idx].Start.Format("15:04"))
 	}
 	b.WriteString(`</svg>`)
 	return template.HTML(b.String())
