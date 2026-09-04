@@ -6,23 +6,23 @@
 <title>FaultLens Report</title>
 <style>
   :root {
-    color-scheme: dark;
-    --bg: #0B0F19;
-    --surface: #151B2B;
-    --surface-2: #1B2334;
-    --surface-3: #202A3E;
-    --border: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.14);
-    --text: #F9FAFB;
-    --muted: #9CA3AF;
-    --faint: #6B7280;
-    --primary: #6366F1;
-    --primary-soft: rgba(99,102,241,0.14);
-    --success: #22C55E;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --danger-soft: rgba(239,68,68,0.14);
-    --warning-soft: rgba(245,158,11,0.14);
+    color-scheme: light;
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --surface-2: #F3F4F6;
+    --surface-3: #E9EBEF;
+    --border: rgba(17,24,39,0.09);
+    --border-strong: rgba(17,24,39,0.18);
+    --text: #1F2328;
+    --muted: #6B7280;
+    --faint: #9CA3AF;
+    --primary: #4F46E5;
+    --primary-soft: rgba(79,70,229,0.10);
+    --success: #16A34A;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --danger-soft: rgba(220,38,38,0.10);
+    --warning-soft: rgba(217,119,6,0.12);
     --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, Menlo, monospace;
   }
@@ -30,9 +30,7 @@
   html { background: var(--bg); }
   body {
     font-family: var(--sans);
-    background:
-      radial-gradient(1200px 500px at 80% -10%, rgba(99,102,241,0.08), transparent 60%),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
@@ -228,7 +226,7 @@
   
   <h2>Error Timeline</h2>
   <div class="panel">
-    <svg viewBox="0 0 880 152" role="img" aria-label="Error timeline" style="width:100%;height:auto"><line x1="0" y1="12.0" x2="880" y2="12.0" stroke="#ffffff" stroke-opacity="0.05"/><text x="4" y="9.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">8</text><line x1="0" y1="71.0" x2="880" y2="71.0" stroke="#ffffff" stroke-opacity="0.05"/><text x="4" y="68.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">4</text><line x1="0" y1="130.0" x2="880" y2="130.0" stroke="#ffffff" stroke-opacity="0.18"/><text x="4" y="127.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">0</text><path d="M 146.7,130.0 L 440.0,12.0 L 733.3,130.0 L733.3,130.0 L146.7,130.0 Z" fill="#6366F1" fill-opacity="0.16"/><path d="M 146.7,130.0 L 440.0,12.0 L 733.3,130.0" fill="none" stroke="#6366F1" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><text x="146.7" y="147" font-size="10" fill="#6B7280" text-anchor="start" font-family="ui-monospace,Consolas,monospace">14:31</text><text x="440.0" y="147" font-size="10" fill="#6B7280" text-anchor="middle" font-family="ui-monospace,Consolas,monospace">14:32</text><text x="733.3" y="147" font-size="10" fill="#6B7280" text-anchor="end" font-family="ui-monospace,Consolas,monospace">14:35</text></svg>
+    <svg viewBox="0 0 880 152" role="img" aria-label="Error timeline" style="width:100%;height:auto"><line x1="0" y1="12.0" x2="880" y2="12.0" stroke="#1F2328" stroke-opacity="0.06"/><text x="4" y="9.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">8</text><line x1="0" y1="71.0" x2="880" y2="71.0" stroke="#1F2328" stroke-opacity="0.06"/><text x="4" y="68.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">4</text><line x1="0" y1="130.0" x2="880" y2="130.0" stroke="#1F2328" stroke-opacity="0.15"/><text x="4" y="127.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">0</text><path d="M 146.7,130.0 L 440.0,12.0 L 733.3,130.0 L733.3,130.0 L146.7,130.0 Z" fill="#4F46E5" fill-opacity="0.12"/><path d="M 146.7,130.0 L 440.0,12.0 L 733.3,130.0" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><text x="146.7" y="147" font-size="10" fill="#6B7280" text-anchor="start" font-family="ui-monospace,Consolas,monospace">14:31</text><text x="440.0" y="147" font-size="10" fill="#6B7280" text-anchor="middle" font-family="ui-monospace,Consolas,monospace">14:32</text><text x="733.3" y="147" font-size="10" fill="#6B7280" text-anchor="end" font-family="ui-monospace,Consolas,monospace">14:35</text></svg>
     <div class="legend">
       <span><i class="normal"></i>normal</span>
       <span><i class="anomaly"></i>anomaly</span>

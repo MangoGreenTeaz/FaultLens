@@ -36,23 +36,23 @@ const renderHTMLTemplate = `<!DOCTYPE html>
 <title>FaultLens Report</title>
 <style>
   :root {
-    color-scheme: dark;
-    --bg: #0B0F19;
-    --surface: #151B2B;
-    --surface-2: #1B2334;
-    --surface-3: #202A3E;
-    --border: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.14);
-    --text: #F9FAFB;
-    --muted: #9CA3AF;
-    --faint: #6B7280;
-    --primary: #6366F1;
-    --primary-soft: rgba(99,102,241,0.14);
-    --success: #22C55E;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --danger-soft: rgba(239,68,68,0.14);
-    --warning-soft: rgba(245,158,11,0.14);
+    color-scheme: light;
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --surface-2: #F3F4F6;
+    --surface-3: #E9EBEF;
+    --border: rgba(17,24,39,0.09);
+    --border-strong: rgba(17,24,39,0.18);
+    --text: #1F2328;
+    --muted: #6B7280;
+    --faint: #9CA3AF;
+    --primary: #4F46E5;
+    --primary-soft: rgba(79,70,229,0.10);
+    --success: #16A34A;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --danger-soft: rgba(220,38,38,0.10);
+    --warning-soft: rgba(217,119,6,0.12);
     --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, Menlo, monospace;
   }
@@ -60,9 +60,7 @@ const renderHTMLTemplate = `<!DOCTYPE html>
   html { background: var(--bg); }
   body {
     font-family: var(--sans);
-    background:
-      radial-gradient(1200px 500px at 80% -10%, rgba(99,102,241,0.08), transparent 60%),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
@@ -448,11 +446,11 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 	// Horizontal grid lines with y-axis labels (max / half / zero).
 	for _, frac := range []float64{1, 0.5, 0} {
 		y := plotH - frac*(plotH-12)
-		op := "0.05"
+		op := "0.06"
 		if frac == 0 {
-			op = "0.18"
+			op = "0.15"
 		}
-		fmt.Fprintf(&b, `<line x1="0" y1="%.1f" x2="%d" y2="%.1f" stroke="#ffffff" stroke-opacity="%s"/>`, y, width, y, op)
+		fmt.Fprintf(&b, `<line x1="0" y1="%.1f" x2="%d" y2="%.1f" stroke="#1F2328" stroke-opacity="%s"/>`, y, width, y, op)
 		val := int(float64(maxErr)*frac + 0.5)
 		fmt.Fprintf(&b, `<text x="4" y="%.1f" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">%d</text>`, y-3, val)
 	}
@@ -467,7 +465,7 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 		}
 	}
 	fmt.Fprintf(&area, " L%.1f,%.1f L%.1f,%.1f Z", pts[n-1].x, base, pts[0].x, base)
-	fmt.Fprintf(&b, `<path d="%s" fill="#6366F1" fill-opacity="0.16"/>`, area.String())
+	fmt.Fprintf(&b, `<path d="%s" fill="#4F46E5" fill-opacity="0.12"/>`, area.String())
 
 	// Line connecting the points.
 	var line strings.Builder
@@ -478,12 +476,12 @@ func timelineSVG(tl []timeline.Bucket, anoms []anomaly.Detection) template.HTML 
 			line.WriteString(" L")
 		}
 	}
-	fmt.Fprintf(&b, `<path d="%s" fill="none" stroke="#6366F1" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`, line.String())
+	fmt.Fprintf(&b, `<path d="%s" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`, line.String())
 
 	// Anomalous buckets: red markers on the line.
 	for i, p := range pts {
 		if anomAt[buckets[i].Start.Unix()] {
-			fmt.Fprintf(&b, `<circle cx="%.1f" cy="%.1f" r="3.5" fill="#EF4444"/>`, p.x, p.y)
+			fmt.Fprintf(&b, `<circle cx="%.1f" cy="%.1f" r="3.5" fill="#DC2626"/>`, p.x, p.y)
 		}
 	}
 
