@@ -5,96 +5,353 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FaultLens Report</title>
 <style>
-  :root { color-scheme: light dark; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 24px; background: #f6f8fa; color: #24292f; }
-  .container { max-width: 960px; margin: 0 auto; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  h2 { font-size: 1.1rem; margin: 28px 0 8px; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; }
-  .muted { color: #57606a; }
-  .card { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: 16px; margin: 8px 0; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-  .stat .value { font-size: 1.4rem; font-weight: 600; }
-  .stat .label { color: #57606a; font-size: 0.8rem; }
-  .severity-critical { color: #cf222e; font-weight: 600; }
-  .severity-high { color: #bc4c00; font-weight: 600; }
-  .severity-medium { color: #9a6700; font-weight: 600; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #d0d7de; font-size: 0.9rem; }
-  th { color: #57606a; font-weight: 500; }
-  ul { margin: 4px 0; }
-  code { background: #f0f1f3; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+  :root {
+    color-scheme: light dark;
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface-2: #fafbfc;
+    --border: #e2e4e8;
+    --text: #1a1d21;
+    --muted: #66707a;
+    --faint: #9aa1a9;
+    --accent: #0b6bcb;
+    --accent-soft: #e5f1fb;
+    --green: #1a7f37;
+    --critical: #cf222e;
+    --critical-soft: #ffebe9;
+    --high: #bc4c00;
+    --high-soft: #fff1e5;
+    --medium: #9a6700;
+    --medium-soft: #fff8c5;
+    --mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, Menlo, monospace;
+  }
   @media (prefers-color-scheme: dark) {
-    body { background: #0d1117; color: #e6edf3; }
-    .card { background: #161b22; border-color: #30363d; }
-    h2 { border-color: #30363d; }
-    th, td { border-color: #30363d; }
-    th, .label, .muted { color: #8b949e; }
-    code { background: #21262d; }
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-2: #1c2129;
+      --border: #2b313a;
+      --text: #e6edf3;
+      --muted: #9aa4b0;
+      --faint: #6e7681;
+      --accent: #4d9fff;
+      --accent-soft: #152c44;
+      --green: #3fb950;
+      --critical: #f85149;
+      --critical-soft: #2d1517;
+      --high: #ffa657;
+      --high-soft: #2d1a0e;
+      --medium: #d29922;
+      --medium-soft: #2c2208;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+                 Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 20px 60px;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+   
+  .header {
+    padding: 34px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo {
+    width: 42px; height: 42px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--accent), #0a4a8a);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 800; font-size: 15px; letter-spacing: .5px;
+    box-shadow: 0 2px 8px rgba(11,107,203,.25);
+    flex: none;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -.2px; }
+  .header .sub { color: var(--muted); font-size: 13px; }
+  .header .tag { margin-left: auto; font-size: 11px; color: var(--faint);
+    font-variant-numeric: tabular-nums; }
+
+   
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 14px;
+  }
+  h2 {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.1px; color: var(--faint);
+    margin: 28px 0 -2px; display: flex; align-items: center; gap: 8px;
+  }
+  h2::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+   
+  .stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; }
+  .stat {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px 12px;
+  }
+  .stat .num { font-size: 26px; font-weight: 750; letter-spacing: -.5px;
+    font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
+    color: var(--muted); margin-top: 2px; }
+  .stat.err .num { color: var(--critical); }
+  .stat.warn .num { color: var(--medium); }
+  .stat.fatal .num { color: var(--critical); }
+  .meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px;
+    font-size: 13px; }
+  .meta dt { color: var(--muted); }
+  .meta dd { color: var(--text); word-break: break-all; }
+  .meta dd code { font-family: var(--mono); font-size: 12px; }
+
+   
+  .legend { font-size: 12px; color: var(--muted); margin: 8px 0 0;
+    display: flex; gap: 16px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+    margin-right: 5px; vertical-align: -1px; }
+  .legend .normal { background: var(--accent); }
+  .legend .anomaly { background: var(--critical); }
+
+   
+  .dx { border-left: 4px solid var(--muted); padding: 18px 20px; }
+  .sev-critical { border-color: var(--critical); }
+  .sev-high { border-color: var(--high); }
+  .sev-medium { border-color: var(--medium); }
+  .sev-low { border-color: var(--green); }
+
+  .dx .rc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--muted); }
+  .dx h3 { font-size: 22px; font-weight: 750; letter-spacing: -.4px; margin: 2px 0 8px; }
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .8px;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .pill-critical { background: var(--critical-soft); color: var(--critical); }
+  .pill-high { background: var(--high-soft); color: var(--high); }
+  .pill-medium { background: var(--medium-soft); color: var(--medium); }
+  .pill-low { background: var(--accent-soft); color: var(--accent); }
+  .pill-insufficient { background: var(--medium-soft); color: var(--medium); }
+
+  .conf { margin: 12px 0 4px; }
+  .conf .conf-label { font-size: 12px; color: var(--muted); }
+  .conf .conf-num { float: right; font-size: 12px; font-weight: 650;
+    font-variant-numeric: tabular-nums; }
+  .conf .bar { height: 7px; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+    margin-top: 4px; }
+  .conf .bar > span { display: block; height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--accent));
+    border-radius: 999px; }
+  .sev-critical .bar > span { background: linear-gradient(90deg,#d16a6e,var(--critical)); }
+  .sev-high .bar > span { background: linear-gradient(90deg,#d99b68,var(--high)); }
+
+  .dx h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .9px;
+    color: var(--muted); margin: 16px 0 6px; }
+  .ev-list { list-style: none; padding: 0; display: grid; gap: 6px; }
+  .ev {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 11px; font-size: 13px;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .ev time { color: var(--faint); font-family: var(--mono); font-size: 12px;
+    flex: none; font-variant-numeric: tabular-nums; }
+  .badge { font-size: 10px; font-weight: 700; letter-spacing: .4px;
+    padding: 1px 7px; border-radius: 5px; flex: none; text-transform: uppercase; }
+  .b-error { background: var(--critical-soft); color: var(--critical); }
+  .b-anomaly { background: var(--high-soft); color: var(--high); }
+  .b-downstream { background: var(--accent-soft); color: var(--accent); }
+  .b-temporal { background: var(--medium-soft); color: var(--medium); }
+  .b-stack { background: var(--surface); color: var(--muted);
+    border: 1px solid var(--border); }
+  .ev p { color: var(--text); }
+
+  ol.recs { padding-left: 0; list-style: none; display: grid; gap: 6px; }
+  .recs li { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
+  .recs .n { font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--accent); flex: none; }
+
+   
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .7px;
+    color: var(--muted); text-align: left; padding: 6px 10px;
+    border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border);
+    vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface-2); }
+  td code, .msg { font-family: var(--mono); font-size: 12px; }
+  .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .rank { color: var(--faint); width: 1%; white-space: nowrap; }
+
+  .files { list-style: none; padding: 0; display: grid; gap: 4px; }
+  .files code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .empty { color: var(--muted); font-size: 13px; padding: 6px 2px; }
+  ul.warns { margin: 0; padding-left: 18px; font-size: 13px; color: var(--high); }
+
+  @media (max-width: 620px) {
+    .header { flex-wrap: wrap; }
+    .header .tag { margin-left: 0; width: 100%; }
+  }
+  @media print {
+    body { background: #fff; color: #000; padding: 0; }
+    .card { break-inside: avoid; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>FaultLens Report</h1>
-  <p class="muted">See beyond the error.</p>
-
-  <h2>Summary</h2>
-  <div class="grid">
-    <div class="card stat"><div class="value">11</div><div class="label">Events</div></div>
-    <div class="card stat"><div class="value">8</div><div class="label">Errors</div></div>
-    <div class="card stat"><div class="value">0</div><div class="label">Warnings</div></div>
-    <div class="card stat"><div class="value">0</div><div class="label">Fatal</div></div>
-  </div>
-  <div class="card">
-    <div><strong>Source:</strong> 1 files</div>
-    <div><strong>Format:</strong> java</div>
-    <div><strong>Time Range:</strong> 2026-08-31 14:31:00 - 2026-08-31 14:35:00</div>
-    
-  </div>
+<div class="wrap">
+  <header class="header">
+    <div class="logo">FL</div>
+    <div>
+      <h1>FaultLens Report</h1>
+      <div class="sub">See beyond the error.</div>
+    </div>
+    <div class="tag">java · 1 files</div>
+  </header>
 
   
-  <h2>Timeline</h2>
-  <div class="card"><svg viewBox="0 0 800 120" role="img" aria-label="Error timeline"><line x1="0" y1="100" x2="800" y2="100" stroke="#d0d7de"/><rect x="0.0" y="99.0" width="266.17" height="1.0" fill="#0969da"/><rect x="266.7" y="0.0" width="266.17" height="100.0" fill="#0969da"/><rect x="533.3" y="99.0" width="266.17" height="1.0" fill="#0969da"/><text x="0.0" y="116" font-size="10" fill="#8b949e">14:31</text><text x="266.7" y="116" font-size="10" fill="#8b949e">14:32</text><text x="533.3" y="116" font-size="10" fill="#8b949e">14:35</text></svg></div>
+  <section class="card">
+    <div class="stats">
+      <div class="stat"><div class="num">11</div><div class="lbl">Events</div></div>
+      <div class="stat err"><div class="num">8</div><div class="lbl">Errors</div></div>
+      <div class="stat warn"><div class="num">0</div><div class="lbl">Warnings</div></div>
+      <div class="stat fatal"><div class="num">0</div><div class="lbl">Fatal</div></div>
+    </div>
+    <dl class="meta" style="margin-top:14px">
+      
+      <dt>Window</dt><dd>2026-08-31 14:31:00 → 2026-08-31 14:35:00</dd>
+      
+      <dt>Format</dt><dd>java</dd>
+      <dt>Source</dt><dd><code>1 files</code></dd>
+      
+    </dl>
+  </section>
+
+  
+  
+  <h2>Error Timeline</h2>
+  <section class="card">
+    <svg viewBox="0 0 880 142" role="img" aria-label="Error timeline" style="width:100%;height:auto"><line x1="0" y1="0" x2="880" y2="0" stroke="currentColor" stroke-opacity="0.05"/><line x1="0" y1="30" x2="880" y2="30" stroke="currentColor" stroke-opacity="0.05"/><line x1="0" y1="60" x2="880" y2="60" stroke="currentColor" stroke-opacity="0.05"/><line x1="0" y1="90" x2="880" y2="90" stroke="currentColor" stroke-opacity="0.05"/><line x1="0" y1="120" x2="880" y2="120" stroke="currentColor" stroke-opacity="0.25"/><rect x="1.2" y="119.0" width="290.8" height="1.0" rx="1" fill="#0b6bcb" fill-opacity="0.85"/><rect x="294.6" y="4.0" width="290.8" height="116.0" rx="1" fill="#0b6bcb" fill-opacity="0.85"/><rect x="587.9" y="119.0" width="290.8" height="1.0" rx="1" fill="#0b6bcb" fill-opacity="0.85"/><text x="146.7" y="136" font-size="10" fill="currentColor" fill-opacity="0.55" text-anchor="start" font-family="ui-monospace,Consolas,monospace">14:31</text><text x="440.0" y="136" font-size="10" fill="currentColor" fill-opacity="0.55" text-anchor="start" font-family="ui-monospace,Consolas,monospace">14:32</text><text x="733.3" y="136" font-size="10" fill="currentColor" fill-opacity="0.55" text-anchor="end" font-family="ui-monospace,Consolas,monospace">14:35</text></svg>
+    <div class="legend">
+      <span><i class="normal"></i>normal bucket</span>
+      <span><i class="anomaly"></i>anomaly</span>
+    </div>
+  </section>
   
 
   
+  
 
+  
   <h2>Diagnosis</h2>
-  <div class="card">
-    <div class="severity-critical">Root Cause: Database unavailable</div>
-    <div>Confidence: 0.70</div>
-    <div>Severity: critical</div>
+  <section class="card dx sev-critical">
+    <div class="rc-label">Root Cause</div>
+    <h3>Database unavailable</h3>
+    <span class="pill pill-critical">critical</span>
+
     
-    <div style="margin-top:8px"><strong>Evidence:</strong></div>
-    <ul>
-      <li>14:32:02 — <code>ERROR_PATTERN</code> database-related errors detected</li><li>14:32:01 — <code>ERROR_PATTERN</code> connection failures detected</li><li>14:32:05 — <code>DOWNSTREAM_IMPACT</code> HTTP 5xx errors observed downstream</li><li>14:32:05 — <code>TIMELINE_CORRELATION</code> database errors preceded HTTP 5xx spike</li>
+    <div class="conf">
+      <span class="conf-label">Confidence</span>
+      <span class="conf-num">70%</span>
+      <div class="bar"><span style="width:70%"></span></div>
+    </div>
+    
+
+    
+    <h4>Evidence</h4>
+    <ul class="ev-list">
+      
+      <li class="ev">
+        <time>14:32:02</time>
+        <span class="badge b-error">ERROR_PATTERN</span>
+        <p>database-related errors detected</p>
+      </li>
+      
+      <li class="ev">
+        <time>14:32:01</time>
+        <span class="badge b-error">ERROR_PATTERN</span>
+        <p>connection failures detected</p>
+      </li>
+      
+      <li class="ev">
+        <time>14:32:05</time>
+        <span class="badge b-downstream">DOWNSTREAM_IMPACT</span>
+        <p>HTTP 5xx errors observed downstream</p>
+      </li>
+      
+      <li class="ev">
+        <time>14:32:05</time>
+        <span class="badge b-temporal">TIMELINE_CORRELATION</span>
+        <p>database errors preceded HTTP 5xx spike</p>
+      </li>
+      
     </ul>
     
+
     
-    <div style="margin-top:8px"><strong>Recommended:</strong></div>
-    <ol>
-      <li>Check MySQL availability</li><li>Check database connection limit</li><li>Check recent database restart</li><li>Check network connectivity between application and database</li>
+    <h4>Recommended Actions</h4>
+    <ol class="recs">
+      
+      <li><span class="n">1</span><span>Check MySQL availability</span></li>
+      
+      <li><span class="n">2</span><span>Check database connection limit</span></li>
+      
+      <li><span class="n">3</span><span>Check recent database restart</span></li>
+      
+      <li><span class="n">4</span><span>Check network connectivity between application and database</span></li>
+      
     </ol>
     
-  </div>
+  </section>
 
+  
   <h2>Error Groups</h2>
-  
-  <div class="card">
+  <section class="card">
+    
     <table>
-      <tr><th>#</th><th>Error</th><th>Occurrences</th><th>First seen</th></tr>
-      <tr><td>1</td><td><code>Connection refused &lt;IP&gt;:&lt;PORT&gt;</code></td><td>3</td><td>14:32:01</td></tr><tr><td>2</td><td><code>MySQL connection failed</code></td><td>3</td><td>14:32:02</td></tr><tr><td>3</td><td><code>HTTP 500 Internal Server Error</code></td><td>2</td><td>14:32:05</td></tr>
+      <thead><tr><th class="rank">#</th><th>Error</th><th class="count">Occurrences</th><th>First seen</th></tr></thead>
+      <tbody>
+        
+        <tr><td class="rank">1</td>
+            <td><code>Connection refused &lt;IP&gt;:&lt;PORT&gt;</code></td>
+            <td class="count">3</td>
+            <td><code>14:32:01</code></td></tr>
+        
+        <tr><td class="rank">2</td>
+            <td><code>MySQL connection failed</code></td>
+            <td class="count">3</td>
+            <td><code>14:32:02</code></td></tr>
+        
+        <tr><td class="rank">3</td>
+            <td><code>HTTP 500 Internal Server Error</code></td>
+            <td class="count">2</td>
+            <td><code>14:32:05</code></td></tr>
+        
+      </tbody>
     </table>
-  </div>
-  
+    
+  </section>
 
+  
   
   <h2>Source Files</h2>
-  <div class="card">
-    <ul><li><code>examples\database-outage\app.log</code></li></ul>
-  </div>
+  <section class="card">
+    <ul class="files"><li><code>examples\database-outage\app.log</code></li></ul>
+  </section>
   
 
+  
   
 </div>
 </body>

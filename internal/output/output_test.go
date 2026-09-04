@@ -189,7 +189,7 @@ func TestRenderHTML(t *testing.T) {
 	}
 	s := buf.String()
 	for _, want := range []string{
-		"<!DOCTYPE html>", "FaultLens Report", "Summary", "Diagnosis", "Error Groups",
+		"<!DOCTYPE html>", "FaultLens Report", "Events", "Diagnosis", "Error Groups",
 		"Database unavailable", "182391", "Connection refused &lt;IP&gt;:&lt;PORT&gt;",
 		"Evidence", "Check MySQL availability",
 		// V2 Phase 7 enhancements
