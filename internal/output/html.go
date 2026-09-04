@@ -212,6 +212,43 @@ const renderHTMLTemplate = `<!DOCTYPE html>
   .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
   .rank { color: var(--faint); width: 1%; white-space: nowrap; font-family: var(--mono); font-size: 11px; }
 
+  /* ---- card lists (error groups / anomalies) ---- */
+  .cards { display: grid; gap: 8px; }
+  .gcard {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .gcard:hover { border-color: var(--border-strong);
+    box-shadow: 0 2px 10px rgba(17,24,39,0.06); }
+  .gcard .rank { font-family: var(--mono); font-size: 12px; color: var(--faint);
+    width: 22px; flex: none; }
+  .gcard .msg { font-family: var(--mono); font-size: 12.5px; flex: 1;
+    word-break: break-all; }
+  .gcard .count {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    background: var(--danger-soft); color: var(--danger);
+    padding: 2px 10px; border-radius: 999px; flex: none;
+    font-variant-numeric: tabular-nums; }
+  .gcard .time { font-size: 11.5px; color: var(--faint); flex: none;
+    font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .acard {
+    display: grid; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    transition: border-color .15s ease;
+  }
+  .acard:hover { border-color: var(--border-strong); }
+  .acard .atime { font-family: var(--mono); font-size: 12.5px; font-weight: 650;
+    font-variant-numeric: tabular-nums; }
+  .acard .row { display: flex; justify-content: space-between; font-size: 12px;
+    color: var(--muted); }
+  .acard .row b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .acard .up { color: var(--warning); font-weight: 700;
+    font-variant-numeric: tabular-nums; }
+
   .files { list-style: none; padding: 0; display: grid; gap: 5px; }
   .files code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
   .empty { color: var(--muted); font-size: 13px; padding: 4px 2px; }
@@ -269,18 +306,15 @@ const renderHTMLTemplate = `<!DOCTYPE html>
   <!-- Anomalies -->
   {{if .Anomalies}}
   <h2>Anomalies</h2>
-  <div class="panel">
-    <table>
-      <thead><tr><th>Time</th><th>Baseline</th><th>Errors</th><th>Increase</th></tr></thead>
-      <tbody>
-        {{range .Anomalies}}
-        <tr><td><code>{{.Bucket.Format "2006-01-02 15:04"}}</code></td>
-            <td>{{printf "%.1f" .BaselineMean}}</td>
-            <td>{{.Current}}</td>
-            <td class="count">{{printf "%.1fx" .Increase}}</td></tr>
-        {{end}}
-      </tbody>
-    </table>
+  <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    {{range .Anomalies}}
+    <div class="acard">
+      <div class="atime">{{.Bucket.Format "2006-01-02 15:04"}}</div>
+      <div class="row"><span>Baseline</span><b>{{printf "%.1f" .BaselineMean}}</b></div>
+      <div class="row"><span>Errors</span><b>{{.Current}}</b></div>
+      <div class="row"><span>Increase</span><span class="up">{{printf "%.1f" .Increase}}x</span></div>
+    </div>
+    {{end}}
   </div>
   {{end}}
 
@@ -325,17 +359,16 @@ const renderHTMLTemplate = `<!DOCTYPE html>
   <h2>Error Groups</h2>
   <div class="panel">
     {{if .ErrorGroups}}
-    <table>
-      <thead><tr><th class="rank">#</th><th>Error</th><th class="count">Occurrences</th><th>First seen</th></tr></thead>
-      <tbody>
-        {{range $i, $g := .ErrorGroups}}
-        <tr><td class="rank">{{add $i 1}}</td>
-            <td><code>{{$g.Message}}</code></td>
-            <td class="count">{{$g.Count}}</td>
-            <td><code>{{if not $g.FirstSeen.IsZero}}{{$g.FirstSeen.Format "15:04:05"}}{{end}}</code></td></tr>
-        {{end}}
-      </tbody>
-    </table>
+    <div class="cards">
+      {{range $i, $g := .ErrorGroups}}
+      <div class="gcard">
+        <span class="rank">{{add $i 1}}</span>
+        <span class="msg">{{$g.Message}}</span>
+        <span class="count">{{$g.Count}}</span>
+        <span class="time">{{if not $g.FirstSeen.IsZero}}{{$g.FirstSeen.Format "15:04:05"}}{{end}}</span>
+      </div>
+      {{end}}
+    </div>
     {{else}}<div class="empty">No error groups</div>{{end}}
   </div>
 

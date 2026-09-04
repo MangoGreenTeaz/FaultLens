@@ -182,6 +182,43 @@
   .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
   .rank { color: var(--faint); width: 1%; white-space: nowrap; font-family: var(--mono); font-size: 11px; }
 
+   
+  .cards { display: grid; gap: 8px; }
+  .gcard {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .gcard:hover { border-color: var(--border-strong);
+    box-shadow: 0 2px 10px rgba(17,24,39,0.06); }
+  .gcard .rank { font-family: var(--mono); font-size: 12px; color: var(--faint);
+    width: 22px; flex: none; }
+  .gcard .msg { font-family: var(--mono); font-size: 12.5px; flex: 1;
+    word-break: break-all; }
+  .gcard .count {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    background: var(--danger-soft); color: var(--danger);
+    padding: 2px 10px; border-radius: 999px; flex: none;
+    font-variant-numeric: tabular-nums; }
+  .gcard .time { font-size: 11.5px; color: var(--faint); flex: none;
+    font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .acard {
+    display: grid; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    transition: border-color .15s ease;
+  }
+  .acard:hover { border-color: var(--border-strong); }
+  .acard .atime { font-family: var(--mono); font-size: 12.5px; font-weight: 650;
+    font-variant-numeric: tabular-nums; }
+  .acard .row { display: flex; justify-content: space-between; font-size: 12px;
+    color: var(--muted); }
+  .acard .row b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .acard .up { color: var(--warning); font-weight: 700;
+    font-variant-numeric: tabular-nums; }
+
   .files { list-style: none; padding: 0; display: grid; gap: 5px; }
   .files code { font-family: var(--mono); font-size: 12px; color: var(--muted); }
   .empty { color: var(--muted); font-size: 13px; padding: 4px 2px; }
@@ -208,14 +245,14 @@
 
   
   <div class="metrics">
-    <div class="metric"><div class="lbl">Events</div><div class="num">11</div></div>
-    <div class="metric"><div class="lbl"><span class="dot dot-critical"></span>Errors</div><div class="num">8</div></div>
+    <div class="metric"><div class="lbl">Events</div><div class="num">30</div></div>
+    <div class="metric"><div class="lbl"><span class="dot dot-critical"></span>Errors</div><div class="num">20</div></div>
     <div class="metric"><div class="lbl"><span class="dot dot-warning"></span>Warnings</div><div class="num">0</div></div>
     <div class="metric"><div class="lbl"><span class="dot dot-critical"></span>Fatal</div><div class="num">0</div></div>
   </div>
   <dl class="meta">
     
-    <dt>Window</dt><dd>2026-08-31 14:31:00 → 2026-08-31 14:35:00</dd>
+    <dt>Window</dt><dd>2026-08-31 14:00:00 → 2026-08-31 14:05:09</dd>
     
     <dt>Format</dt><dd>java</dd>
     <dt>Source</dt><dd><code>1 files</code></dd>
@@ -226,7 +263,7 @@
   
   <h2>Error Timeline</h2>
   <div class="panel">
-    <svg viewBox="0 0 880 152" role="img" aria-label="Error timeline" style="width:100%;height:auto"><line x1="0" y1="12.0" x2="880" y2="12.0" stroke="#1F2328" stroke-opacity="0.06"/><text x="4" y="9.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">8</text><line x1="0" y1="71.0" x2="880" y2="71.0" stroke="#1F2328" stroke-opacity="0.06"/><text x="4" y="68.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">4</text><line x1="0" y1="130.0" x2="880" y2="130.0" stroke="#1F2328" stroke-opacity="0.15"/><text x="4" y="127.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">0</text><path d="M 146.7,130.0 L 440.0,12.0 L 733.3,130.0 L733.3,130.0 L146.7,130.0 Z" fill="#4F46E5" fill-opacity="0.12"/><path d="M 146.7,130.0 L 440.0,12.0 L 733.3,130.0" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><text x="146.7" y="147" font-size="10" fill="#6B7280" text-anchor="start" font-family="ui-monospace,Consolas,monospace">14:31</text><text x="440.0" y="147" font-size="10" fill="#6B7280" text-anchor="middle" font-family="ui-monospace,Consolas,monospace">14:32</text><text x="733.3" y="147" font-size="10" fill="#6B7280" text-anchor="end" font-family="ui-monospace,Consolas,monospace">14:35</text></svg>
+    <svg viewBox="0 0 880 152" role="img" aria-label="Error timeline" style="width:100%;height:auto"><line x1="0" y1="12.0" x2="880" y2="12.0" stroke="#1F2328" stroke-opacity="0.06"/><text x="4" y="9.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">10</text><line x1="0" y1="71.0" x2="880" y2="71.0" stroke="#1F2328" stroke-opacity="0.06"/><text x="4" y="68.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">5</text><line x1="0" y1="130.0" x2="880" y2="130.0" stroke="#1F2328" stroke-opacity="0.15"/><text x="4" y="127.0" font-size="9" fill="#6B7280" font-family="ui-monospace,Consolas,monospace">0</text><path d="M 73.3,106.4 L 220.0,106.4 L 366.7,106.4 L 513.3,106.4 L 660.0,106.4 L 806.7,12.0 L806.7,130.0 L73.3,130.0 Z" fill="#4F46E5" fill-opacity="0.12"/><path d="M 73.3,106.4 L 220.0,106.4 L 366.7,106.4 L 513.3,106.4 L 660.0,106.4 L 806.7,12.0" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="806.7" cy="12.0" r="3.5" fill="#DC2626"/><text x="73.3" y="147" font-size="10" fill="#6B7280" text-anchor="start" font-family="ui-monospace,Consolas,monospace">14:00</text><text x="513.3" y="147" font-size="10" fill="#6B7280" text-anchor="middle" font-family="ui-monospace,Consolas,monospace">14:03</text><text x="806.7" y="147" font-size="10" fill="#6B7280" text-anchor="end" font-family="ui-monospace,Consolas,monospace">14:05</text></svg>
     <div class="legend">
       <span><i class="normal"></i>normal</span>
       <span><i class="anomaly"></i>anomaly</span>
@@ -236,65 +273,30 @@
 
   
   
+  <h2>Anomalies</h2>
+  <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    
+    <div class="acard">
+      <div class="atime">2026-08-31 14:05</div>
+      <div class="row"><span>Baseline</span><b>2.0</b></div>
+      <div class="row"><span>Errors</span><b>10</b></div>
+      <div class="row"><span>Increase</span><span class="up">5.0x</span></div>
+    </div>
+    
+  </div>
+  
 
   
   <h2>Diagnosis</h2>
-  <section class="dx sev-critical">
+  <section class="dx sev-low">
     <div class="rc-label">Root Cause</div>
-    <h3>Database unavailable</h3>
-    <span class="pill pill-critical">critical</span>
+    <h3>Insufficient evidence</h3>
+    <span class="pill pill-low">low</span>
 
-    
-    <div class="conf">
-      <div class="row"><span class="conf-label">Confidence</span><span class="conf-num">70%</span></div>
-      <div class="bar"><span style="width:70%"></span></div>
-    </div>
     
 
     
-    <h4>Evidence</h4>
-    <ul class="ev-list">
-      
-      <li class="ev">
-        <time>14:32:02</time>
-        <span class="badge b-error">ERROR_PATTERN</span>
-        <p>database-related errors detected</p>
-      </li>
-      
-      <li class="ev">
-        <time>14:32:01</time>
-        <span class="badge b-error">ERROR_PATTERN</span>
-        <p>connection failures detected</p>
-      </li>
-      
-      <li class="ev">
-        <time>14:32:05</time>
-        <span class="badge b-downstream">DOWNSTREAM_IMPACT</span>
-        <p>HTTP 5xx errors observed downstream</p>
-      </li>
-      
-      <li class="ev">
-        <time>14:32:05</time>
-        <span class="badge b-temporal">TIMELINE_CORRELATION</span>
-        <p>database errors preceded HTTP 5xx spike</p>
-      </li>
-      
-    </ul>
-    
 
-    
-    <h4>Recommended Actions</h4>
-    <ol class="recs">
-      
-      <li><span class="n">1</span><span>Check MySQL availability</span></li>
-      
-      <li><span class="n">2</span><span>Check database connection limit</span></li>
-      
-      <li><span class="n">3</span><span>Check recent database restart</span></li>
-      
-      <li><span class="n">4</span><span>Check network connectivity between application and database</span></li>
-      
-    </ol>
     
   </section>
 
@@ -302,27 +304,23 @@
   <h2>Error Groups</h2>
   <div class="panel">
     
-    <table>
-      <thead><tr><th class="rank">#</th><th>Error</th><th class="count">Occurrences</th><th>First seen</th></tr></thead>
-      <tbody>
-        
-        <tr><td class="rank">1</td>
-            <td><code>Connection refused &lt;IP&gt;:&lt;PORT&gt;</code></td>
-            <td class="count">3</td>
-            <td><code>14:32:01</code></td></tr>
-        
-        <tr><td class="rank">2</td>
-            <td><code>MySQL connection failed</code></td>
-            <td class="count">3</td>
-            <td><code>14:32:02</code></td></tr>
-        
-        <tr><td class="rank">3</td>
-            <td><code>HTTP 500 Internal Server Error</code></td>
-            <td class="count">2</td>
-            <td><code>14:32:05</code></td></tr>
-        
-      </tbody>
-    </table>
+    <div class="cards">
+      
+      <div class="gcard">
+        <span class="rank">1</span>
+        <span class="msg">baseline error</span>
+        <span class="count">10</span>
+        <span class="time">14:00:00</span>
+      </div>
+      
+      <div class="gcard">
+        <span class="rank">2</span>
+        <span class="msg">spike error</span>
+        <span class="count">10</span>
+        <span class="time">14:05:00</span>
+      </div>
+      
+    </div>
     
   </div>
 
@@ -330,7 +328,7 @@
   
   <h2>Source Files</h2>
   <div class="panel">
-    <ul class="files"><li><code>examples\database-outage\app.log</code></li></ul>
+    <ul class="files"><li><code>C:\Users\hulei\AppData\Local\Temp\opencode\spike.log</code></li></ul>
   </div>
   
 
