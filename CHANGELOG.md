@@ -54,5 +54,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 
-- V3 ideas only (real-time tail, daemon mode, web UI, rule learning) — see
-  `plan-v2.md`
+- V3 ideas only (real-time tail, daemon mode, web UI, rule learning)

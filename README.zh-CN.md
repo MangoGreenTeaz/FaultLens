@@ -444,8 +444,7 @@ gofmt -l .
 
 ## 🗺️ 路线图
 
-V3 想法记录(未实现)见 [plan-v2.md](plan-v2.md):实时 tail、daemon 模式、
-Web UI、规则学习、跨主机时间线对齐。
+未来规划与演进方向（未实现）：实时 tail、daemon 模式、Web UI、规则学习、跨主机时间线对齐。
 
 ## 📄 许可
 

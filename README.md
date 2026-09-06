@@ -461,9 +461,8 @@ See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
 
 ## 🗺️ Roadmap
 
-V3 ideas are recorded (not implemented) in [plan-v2.md](plan-v2.md):
-real-time tail, daemon mode, web UI, rule learning, cross-host timeline
-alignment.
+Future ideas (not yet implemented): real-time tail, daemon mode, web UI,
+rule learning, cross-host timeline alignment.
 
 ## 📄 License
 
